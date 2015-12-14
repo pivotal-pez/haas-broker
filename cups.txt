@@ -1,0 +1,2 @@
+cf cups mongo-service -p "database, host, password, port, scheme, uri, username"
+cf cups basic-auth-service -p "username, password"

@@ -1,0 +1,17 @@
+---
+applications:
+- name: haasbroker 
+  buildpack: http://github.com/ryandotsmith/null-buildpack.git
+  command: ./main
+  services:
+    - basic-auth-service 
+    - mongo-service
+  env:
+    MONGO_SERVICE_NAME: mongo-service
+    MONGO_SERVICE_URI_NAME: uri
+    MONGO_SERVICE_DATABASE_NAME: database
+    MONGO_COLLECTION_NAME: instance-inventory
+    BASIC_AUTH_SERVICE_NAME: basic-auth-service
+    BASIC_AUTH_USERNAME_FIELD: username
+    BASIC_AUTH_PASSWORD_FIELD: password
+    LOG_LEVEL: debug

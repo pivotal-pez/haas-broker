@@ -1,0 +1,76 @@
+{
+	"ImportPath": "github.com/pivotal-pez/haas-broker",
+	"GoVersion": "go1.5.2",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/cloudfoundry-community/go-cfenv",
+			"Comment": "v1.12",
+			"Rev": "c682e189b94b0b2ec6edf12363df2eecf29d7256"
+		},
+		{
+			"ImportPath": "github.com/codegangsta/negroni",
+			"Comment": "v0.1-70-gc7477ad",
+			"Rev": "c7477ad8e330bef55bf1ebe300cf8aa67c492d1b"
+		},
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "1c83b3eabd45b6d76072b66b746c20815fb2872d"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Rev": "ad4d7a5882b961e07e2626045eb995c022ac6664"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/mapstructure",
+			"Rev": "281073eb9eb092240d33ef253c404f1cca550309"
+		},
+		{
+			"ImportPath": "github.com/nabeken/negroni-auth",
+			"Rev": "e36ebd5bfb3f8abdb29af3b5080565d740f2bf7d"
+		},
+		{
+			"ImportPath": "github.com/onsi/ginkgo",
+			"Comment": "v1.2.0-22-g39d2c24",
+			"Rev": "39d2c24f8a92c88f7e7f4d8ec6c80d3cc8f5ac65"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega",
+			"Comment": "v1.0-71-g2152b45",
+			"Rev": "2152b45fa28a361beba9aab0885972323a444e28"
+		},
+		{
+			"ImportPath": "github.com/op/go-logging",
+			"Rev": "e8d5414f0947014548c2334044a0fac13187dfee"
+		},
+		{
+			"ImportPath": "github.com/pivotal-pez/cfmgo",
+			"Rev": "d9e856a55f2e65b54e23b2f0b85030e7902bcec7"
+		},
+		{
+			"ImportPath": "github.com/pmylund/go-cache",
+			"Rev": "721cc9438c91df8997d39584a6740e2aba3100a7"
+		},
+		{
+			"ImportPath": "github.com/xchapter7x/lo",
+			"Rev": "aa2602d0e8e8647f0ce7b53109b37040941915aa"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/bcrypt",
+			"Comment": "null-234",
+			"Rev": "'60a80aaa50ff0e8506f61b1fa35078a24941be50'"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/blowfish",
+			"Comment": "null-234",
+			"Rev": "'60a80aaa50ff0e8506f61b1fa35078a24941be50'"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2",
+			"Comment": "r2015.10.05",
+			"Rev": "f402e3a216db333ae6b3ba68b9152a34a0bc6984"
+		}
+	]
+}
