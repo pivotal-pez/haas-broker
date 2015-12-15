@@ -79,7 +79,7 @@ deploy:
     - script: 
         name: cloud deploy
         code: |
-          cf cloud-deploy --run pezdispenser.${WERCKER_DEPLOYTARGET_NAME} --org pivotal-pez --repo deployments --branch master
+          cf cloud-deploy --run haas-broker.${WERCKER_DEPLOYTARGET_NAME} --org pivotal-pez --repo deployments --branch master
 
     - xchapter7x/flowy-release:
         action: "tag-only-release"
@@ -101,13 +101,13 @@ deploy:
           tar -cvzf haas-broker.tgz manifest.yml $CF_MANIFEST_FILE_PATH cups.txt main version.txt README.md
 
     - github-create-release:
-        token: $GITHUB_TOKEN
+        token: $GH_TOKEN
         tag: $WERCKER_GITHUB_CREATE_RELEASE_ID
         title: haas-broker $WERCKER_GITHUB_CREATE_RELEASE_ID
         draft: $RELEASE_DRAFT
     
     - github-upload-asset:
-        token: $GITHUB_TOKEN
+        token: $GH_TOKEN
         file: haas-broker.tgz
         release_id: $WERCKER_GITHUB_CREATE_RELEASE_ID
         content-type: application/x-gzip

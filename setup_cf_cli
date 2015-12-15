@@ -1,0 +1,7 @@
+wget http://go-cli.s3-website-us-east-1.amazonaws.com/releases/v6.12.0/cf-linux-amd64.tgz
+tar -zxvf cf-linux-amd64.tgz
+mv ./cf /usr/local/bin/
+GOPATH=/tmp go get github.com/xchapter7x/autopilot
+GOPATH=/tmp go get github.com/xchapter7x/deploycloud
+cf install-plugin /tmp/bin/autopilot
+cf install-plugin /tmp/bin/deploycloud
