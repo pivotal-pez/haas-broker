@@ -81,6 +81,11 @@ deploy:
         code: |
           cf cloud-deploy --run haas-broker.${WERCKER_DEPLOYTARGET_NAME} --org pivotal-pez --repo deployments --branch master
 
+    - script: 
+        name: update service in cloud controller
+        code: |
+          cf cloud-deploy --run haas-broker.${WERCKER_DEPLOYTARGET_NAME}-service --org pivotal-pez --repo deployments --branch master --cfuser ${SERVICE_ADMIN_USER} --cfpass ${SERVICE_ADMIN_PASS}
+
     - xchapter7x/flowy-release:
         action: "tag-only-release"
         tag_variable_name: "VERSION_TAG"
