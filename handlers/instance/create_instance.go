@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/pivotal-pez/pezdispenser/pdclient"
 )
 
 //PutHandler - this is the actual handler method that will be used for the
@@ -20,8 +22,17 @@ func (s *InstanceCreator) PutHandler(w http.ResponseWriter, req *http.Request) {
 	if bodyBytes, err = ioutil.ReadAll(req.Body); err == nil {
 
 		if err = json.Unmarshal(bodyBytes, &s.Model); err == nil {
-			statusCode = http.StatusAccepted
-			responseBody = fmt.Sprintf(`{"dashboard_url": "%s"}`, DashboardUrl)
+			var (
+				leaseRes pdclient.LeaseCreateResponseBody
+			)
+			client := pdclient.NewClient(s.Dispenser.ApiKey, s.Dispenser.URL, HttpClient)
+			inventoryID := fmt.Sprintf("%s-%s", s.Model.OrganizationGUID, s.Model.SpaceGUID)
+
+			if leaseRes, _, err = client.PostLease(s.Model.ServiceID, inventoryID, s.getPlanName(), 14); err == nil {
+				s.Model.TaskGUID = leaseRes.ID
+				statusCode = http.StatusAccepted
+				responseBody = fmt.Sprintf(`{"dashboard_url": "%s"}`, DashboardUrl)
+			}
 		}
 	}
 
@@ -31,4 +42,8 @@ func (s *InstanceCreator) PutHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	w.WriteHeader(statusCode)
 	fmt.Fprintf(w, responseBody)
+}
+
+func (s *InstanceCreator) getPlanName() string {
+	return PlanGUIDMap[s.Model.PlanID]
 }

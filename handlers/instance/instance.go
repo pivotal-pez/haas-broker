@@ -6,12 +6,14 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/pivotal-pez/cfmgo"
+	"github.com/pivotal-pez/haas-broker/handlers"
 )
 
 //Put - handler function for put calls
-func Put(collection cfmgo.Collection) func(http.ResponseWriter, *http.Request) {
+func Put(collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds) func(http.ResponseWriter, *http.Request) {
 	instanceCreator := new(InstanceCreator)
 	instanceCreator.Collection = collection
+	instanceCreator.Dispenser = dispenserCreds
 	return instanceCreator.PutHandler
 }
 

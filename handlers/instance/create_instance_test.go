@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pivotal-pez/cfmgo"
 	. "github.com/pivotal-pez/haas-broker/handlers/instance"
+	"github.com/pivotal-pez/pezdispenser/pdclient/fake"
 )
 
 type fakeCol struct {
@@ -17,6 +18,7 @@ type fakeCol struct {
 }
 
 var _ = Describe("InstanceCreator", func() {
+
 	Describe("given PutHandler() method", func() {
 		Context("when called with a new service instance request", func() {
 			var (
@@ -40,6 +42,12 @@ var _ = Describe("InstanceCreator", func() {
 				responseWriter = httptest.NewRecorder()
 				request := &http.Request{
 					Body: ioutil.NopCloser(bytes.NewBufferString(controlRequestBody)),
+				}
+				HttpClient = &fake.ClientDoer{
+					Response: &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       ioutil.NopCloser(bytes.NewBufferString("")),
+					},
 				}
 				instanceCreator.PutHandler(responseWriter, request)
 			})

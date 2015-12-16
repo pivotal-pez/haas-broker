@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/nabeken/negroni-auth"
 	"github.com/pivotal-pez/cfmgo"
+	"github.com/pivotal-pez/haas-broker/handlers"
 	"github.com/pivotal-pez/haas-broker/handlers/binding"
 	"github.com/pivotal-pez/haas-broker/handlers/catalog"
 	"github.com/pivotal-pez/haas-broker/handlers/instance"
@@ -24,6 +25,7 @@ func main() {
 		serviceURI := cfmgo.GetServiceBinding(serviceName, serviceURIName, appEnv)
 		collectionName := os.Getenv("MONGO_COLLECTION_NAME")
 		collection := cfmgo.Connect(cfmgo.NewCollectionDialer, serviceURI, collectionName)
+		dispenserCreds := getDispenserInfo(appEnv)
 		lo.G.Debug("created mongo conn", serviceURI, collectionName)
 		n := negroni.Classic()
 		lo.G.Debug("created negroni")
@@ -33,7 +35,7 @@ func main() {
 			user := basicAuthService.Credentials[os.Getenv("BASIC_AUTH_USERNAME_FIELD")].(string)
 			pass := basicAuthService.Credentials[os.Getenv("BASIC_AUTH_PASSWORD_FIELD")].(string)
 			n.Use(auth.Basic(user, pass))
-			n.UseHandler(getRouter(collection))
+			n.UseHandler(getRouter(collection, dispenserCreds))
 			lo.G.Debug("starting server")
 			n.Run(fmt.Sprintf(":%s", os.Getenv("PORT")))
 			lo.G.Panic("run didnt lock!!!")
@@ -47,11 +49,23 @@ func main() {
 	}
 }
 
-func getRouter(collection cfmgo.Collection) (router *mux.Router) {
+func getDispenserInfo(appEnv *cfenv.App) handlers.DispenserCreds {
+	serviceName := os.Getenv("DISPENSER_SERVICE_NAME")
+	keyName := os.Getenv("DISPENSER_KEY_NAME")
+	urlName := os.Getenv("DISPENSER_URL_NAME")
+	service, _ := appEnv.Services.WithName(serviceName)
+	creds := service.Credentials
+	return handlers.DispenserCreds{
+		ApiKey: creds[keyName].(string),
+		URL:    creds[urlName].(string),
+	}
+}
+
+func getRouter(collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds) (router *mux.Router) {
 	router = mux.NewRouter()
 	router.HandleFunc(catalog.HandlerPath, catalog.Get()).Methods("GET")
 	router.HandleFunc(instance.AsyncHandlerPath, instance.Get(collection)).Methods("GET")
-	router.HandleFunc(instance.HandlerPath, instance.Put(collection)).Methods("PUT")
+	router.HandleFunc(instance.HandlerPath, instance.Put(collection, dispenserCreds)).Methods("PUT")
 	router.HandleFunc(instance.HandlerPath, instance.Patch(collection)).Methods("PATCH")
 	router.HandleFunc(instance.HandlerPath, instance.Delete(collection)).Methods("DELETE")
 	router.HandleFunc(binding.HandlerPath, binding.Delete(collection)).Methods("DELETE")

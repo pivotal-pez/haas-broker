@@ -1,11 +1,17 @@
 package instance
 
-import "github.com/pivotal-pez/cfmgo"
+import (
+	"net/http"
+
+	"github.com/pivotal-pez/cfmgo"
+	"github.com/pivotal-pez/haas-broker/handlers"
+)
 
 type (
 	//InstanceCreator - a type which can handle creating service instance requests
 	InstanceCreator struct {
 		Collection cfmgo.Collection
+		Dispenser  handlers.DispenserCreds
 		Model      InstanceModel
 	}
 	InstanceModel struct {
@@ -15,5 +21,8 @@ type (
 		SpaceGUID        string                 `json:"space_guid"`
 		Parameters       map[string]interface{} `json:"parameters"`
 		TaskGUID         string
+	}
+	clientDoer interface {
+		Do(req *http.Request) (resp *http.Response, err error)
 	}
 )

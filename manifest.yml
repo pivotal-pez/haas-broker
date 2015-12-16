@@ -14,4 +14,7 @@ applications:
     BASIC_AUTH_SERVICE_NAME: basic-auth-service
     BASIC_AUTH_USERNAME_FIELD: username
     BASIC_AUTH_PASSWORD_FIELD: password
+    DISPENSER_SERVICE_NAME: dispenser-service
+    DISPENSER_KEY_NAME: apikey
+    DISPENSER_URL_NAME: url
     LOG_LEVEL: debug

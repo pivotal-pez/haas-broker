@@ -50,6 +50,11 @@
 			"Rev": "d9e856a55f2e65b54e23b2f0b85030e7902bcec7"
 		},
 		{
+			"ImportPath": "github.com/pivotal-pez/pezdispenser/pdclient",
+			"Comment": "v0.0.119-16-g1878989",
+			"Rev": "1878989ea3adfb89447d60634446d3d49eb11355"
+		},
+		{
 			"ImportPath": "github.com/pmylund/go-cache",
 			"Rev": "721cc9438c91df8997d39584a6740e2aba3100a7"
 		},
