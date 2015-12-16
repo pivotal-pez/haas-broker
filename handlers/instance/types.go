@@ -14,6 +14,7 @@ type (
 		Dispenser  handlers.DispenserCreds
 		Model      InstanceModel
 	}
+	//InstanceModel - persistence model struct
 	InstanceModel struct {
 		OrganizationGUID string                 `json:"organization_guid"`
 		PlanID           string                 `json:"plan_id"`
