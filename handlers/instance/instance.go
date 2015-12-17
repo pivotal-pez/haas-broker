@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/pivotal-pez/cfmgo"
 	"github.com/pivotal-pez/haas-broker/handlers"
 )
@@ -37,10 +36,13 @@ func Delete(collection cfmgo.Collection) func(http.ResponseWriter, *http.Request
 }
 
 //Get - handler function for get calls
-func Get(collection cfmgo.Collection) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, req *http.Request) {
-		vars := mux.Vars(req)
-		category := vars["instance_id"]
-		fmt.Fprintf(w, "Welcome to the home page!", category)
+func Get(collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds) func(http.ResponseWriter, *http.Request) {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
+	client := &http.Client{Transport: tr}
+	instanceCreator := &InstanceCreator{ClientDoer: client}
+	instanceCreator.Collection = collection
+	instanceCreator.Dispenser = dispenserCreds
+	return instanceCreator.GetHandler
 }

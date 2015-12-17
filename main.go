@@ -64,7 +64,7 @@ func getDispenserInfo(appEnv *cfenv.App) handlers.DispenserCreds {
 func getRouter(collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds) (router *mux.Router) {
 	router = mux.NewRouter()
 	router.HandleFunc(catalog.HandlerPath, catalog.Get()).Methods("GET")
-	router.HandleFunc(instance.AsyncHandlerPath, instance.Get(collection)).Methods("GET")
+	router.HandleFunc(instance.AsyncHandlerPath, instance.Get(collection, dispenserCreds)).Methods("GET")
 	router.HandleFunc(instance.HandlerPath, instance.Put(collection, dispenserCreds)).Methods("PUT")
 	router.HandleFunc(instance.HandlerPath, instance.Patch(collection)).Methods("PATCH")
 	router.HandleFunc(instance.HandlerPath, instance.Delete(collection)).Methods("DELETE")

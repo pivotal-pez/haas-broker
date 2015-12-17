@@ -17,6 +17,7 @@ type (
 	}
 	//InstanceModel - persistence model struct
 	InstanceModel struct {
+		InstanceID       string
 		OrganizationGUID string                 `json:"organization_guid"`
 		PlanID           string                 `json:"plan_id"`
 		ServiceID        string                 `json:"service_id"`
