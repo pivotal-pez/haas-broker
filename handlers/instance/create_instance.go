@@ -36,7 +36,7 @@ func (s *InstanceCreator) PutHandler(w http.ResponseWriter, req *http.Request) {
 
 		if err = json.Unmarshal(bodyBytes, &s.Model); err == nil {
 			var (
-				leaseRes pdclient.LeaseCreateResponseBody
+				leaseRes pdclient.TaskResponse
 			)
 			client := pdclient.NewClient(s.Dispenser.ApiKey, s.Dispenser.URL, s.ClientDoer)
 			inventoryID := fmt.Sprintf("%s-%s", s.Model.OrganizationGUID, s.Model.SpaceGUID)
