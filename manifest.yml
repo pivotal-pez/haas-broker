@@ -6,6 +6,7 @@ applications:
   services:
     - basic-auth-service 
     - mongo-service
+    - dispenser-service
   env:
     MONGO_SERVICE_NAME: mongo-service
     MONGO_SERVICE_URI_NAME: uri
