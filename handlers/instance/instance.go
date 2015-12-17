@@ -1,6 +1,7 @@
 package instance
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 
@@ -11,7 +12,11 @@ import (
 
 //Put - handler function for put calls
 func Put(collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds) func(http.ResponseWriter, *http.Request) {
-	instanceCreator := &InstanceCreator{ClientDoer: new(http.Client)}
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+	instanceCreator := &InstanceCreator{ClientDoer: client}
 	instanceCreator.Collection = collection
 	instanceCreator.Dispenser = dispenserCreds
 	return instanceCreator.PutHandler
