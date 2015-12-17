@@ -31,6 +31,8 @@ func (s *PDClient) PostLease(leaseID, inventoryID, skuID string, leaseDaysDurati
 			json.Unmarshal(resBodyBytes, &leaseCreateResponse)
 
 		} else {
+			lo.G.Error("client Do Error: ", err.Error())
+			lo.G.Error("client Res: ", res)
 			err = ErrInvalidDispenserResponse
 		}
 
