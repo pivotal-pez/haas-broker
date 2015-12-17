@@ -53,7 +53,7 @@ var _ = Describe("InstanceCreator", func() {
 
 			It("then it should return a response body containing the dashboardurl", func() {
 				body, _ := ioutil.ReadAll(responseWriter.Body)
-				Ω(body).Should(ContainSubstring(DashboardUrl))
+				Ω(body).Should(ContainSubstring("dashboard_url"))
 			})
 
 			It("then it should properly parse the request body", func() {

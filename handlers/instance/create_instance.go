@@ -14,6 +14,7 @@ import (
 //GetHandler - this is the handler that will be used for polling async
 //provisioning status by the service broker
 func (s *InstanceCreator) GetHandler(w http.ResponseWriter, req *http.Request) {
+	s.parsePutVars(req)
 	responseBody := `{
 		"state": "succeeded",
 		"description": "Creating service (100% complete)."
@@ -45,7 +46,7 @@ func (s *InstanceCreator) PutHandler(w http.ResponseWriter, req *http.Request) {
 				s.Model.TaskGUID = leaseRes.ID
 				s.Model.Save(s.Collection)
 				statusCode = http.StatusAccepted
-				responseBody = fmt.Sprintf(`{"dashboard_url": "%s"}`, DashboardUrl)
+				responseBody = fmt.Sprintf(`{"dashboard_url": "%s/show/%s"}`, dashboardUrl, s.Model.TaskGUID)
 			}
 		}
 	}

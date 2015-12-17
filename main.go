@@ -35,7 +35,7 @@ func main() {
 			user := basicAuthService.Credentials[os.Getenv("BASIC_AUTH_USERNAME_FIELD")].(string)
 			pass := basicAuthService.Credentials[os.Getenv("BASIC_AUTH_PASSWORD_FIELD")].(string)
 			n.Use(auth.Basic(user, pass))
-			n.UseHandler(getRouter(collection, dispenserCreds))
+			n.UseHandler(getRouter(collection, dispenserCreds, appEnv))
 			lo.G.Debug("starting server")
 			n.Run(fmt.Sprintf(":%s", os.Getenv("PORT")))
 			lo.G.Panic("run didnt lock!!!")
@@ -61,11 +61,11 @@ func getDispenserInfo(appEnv *cfenv.App) handlers.DispenserCreds {
 	}
 }
 
-func getRouter(collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds) (router *mux.Router) {
+func getRouter(collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds, appEnv *cfenv.App) (router *mux.Router) {
 	router = mux.NewRouter()
 	router.HandleFunc(catalog.HandlerPath, catalog.Get()).Methods("GET")
 	router.HandleFunc(instance.AsyncHandlerPath, instance.Get(collection, dispenserCreds)).Methods("GET")
-	router.HandleFunc(instance.HandlerPath, instance.Put(collection, dispenserCreds)).Methods("PUT")
+	router.HandleFunc(instance.HandlerPath, instance.Put(collection, dispenserCreds, appEnv)).Methods("PUT")
 	router.HandleFunc(instance.HandlerPath, instance.Patch(collection)).Methods("PATCH")
 	router.HandleFunc(instance.HandlerPath, instance.Delete(collection)).Methods("DELETE")
 	router.HandleFunc(binding.HandlerPath, binding.Delete(collection)).Methods("DELETE")

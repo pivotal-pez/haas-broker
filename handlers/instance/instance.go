@@ -5,12 +5,20 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/cloudfoundry-community/go-cfenv"
 	"github.com/pivotal-pez/cfmgo"
 	"github.com/pivotal-pez/haas-broker/handlers"
 )
 
+func setDashboardURL(vcapApp *cfenv.App) {
+	if len(vcapApp.ApplicationURIs) > 0 {
+		dashboardUrl = vcapApp.ApplicationURIs[0]
+	}
+}
+
 //Put - handler function for put calls
-func Put(collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds) func(http.ResponseWriter, *http.Request) {
+func Put(collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds, vcapApp *cfenv.App) func(http.ResponseWriter, *http.Request) {
+	setDashboardURL(vcapApp)
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
