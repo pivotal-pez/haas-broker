@@ -12,6 +12,7 @@ type (
 	InstanceCreator struct {
 		Collection cfmgo.Collection
 		Dispenser  handlers.DispenserCreds
+		ClientDoer clientDoer
 		Model      InstanceModel
 	}
 	//InstanceModel - persistence model struct

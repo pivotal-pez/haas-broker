@@ -39,7 +39,7 @@ var _ = Describe("InstanceCreator", func() {
 				request := &http.Request{
 					Body: ioutil.NopCloser(bytes.NewBufferString(controlRequestBody)),
 				}
-				HttpClient = &fake.ClientDoer{
+				instanceCreator.ClientDoer = &fake.ClientDoer{
 					Response: &http.Response{
 						StatusCode: http.StatusOK,
 						Body:       ioutil.NopCloser(bytes.NewBufferString(dispenserResponse)),

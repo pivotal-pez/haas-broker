@@ -25,7 +25,7 @@ func (s *InstanceCreator) PutHandler(w http.ResponseWriter, req *http.Request) {
 			var (
 				leaseRes pdclient.LeaseCreateResponseBody
 			)
-			client := pdclient.NewClient(s.Dispenser.ApiKey, s.Dispenser.URL, HttpClient)
+			client := pdclient.NewClient(s.Dispenser.ApiKey, s.Dispenser.URL, s.ClientDoer)
 			inventoryID := fmt.Sprintf("%s-%s", s.Model.OrganizationGUID, s.Model.SpaceGUID)
 
 			if leaseRes, _, err = client.PostLease(s.Model.ServiceID, inventoryID, s.getPlanName(), 14); err == nil {

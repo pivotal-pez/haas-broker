@@ -11,7 +11,7 @@ import (
 
 //Put - handler function for put calls
 func Put(collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds) func(http.ResponseWriter, *http.Request) {
-	instanceCreator := new(InstanceCreator)
+	instanceCreator := &InstanceCreator{ClientDoer: new(http.Client)}
 	instanceCreator.Collection = collection
 	instanceCreator.Dispenser = dispenserCreds
 	return instanceCreator.PutHandler
