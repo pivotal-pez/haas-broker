@@ -21,9 +21,7 @@ func Get() func(http.ResponseWriter, *http.Request) {
 				"metadata":{
             "displayName":"PEZ-HaaS",
             "imageUrl":"https://pez.pezapp.io/img/pez-clear.png",
-						"providerDisplayName":"PEZ",
-						"documentationUrl":"https://www.pezapp.io",
-            "supportUrl":"https://www.pezapp.io"
+						"providerDisplayName":"PEZ"
          },
 				"bindable": false,
 				"plans": [{
