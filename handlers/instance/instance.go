@@ -31,7 +31,8 @@ func Patch(collection cfmgo.Collection) func(http.ResponseWriter, *http.Request)
 //Delete - handler function for delete calls
 func Delete(collection cfmgo.Collection) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {
-		fmt.Fprintf(w, "Welcome to the home page!")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "{}")
 	}
 }
 
