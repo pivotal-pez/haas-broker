@@ -26,7 +26,7 @@ func (s *PDClient) PostLease(leaseID, inventoryID, skuID string, leaseDaysDurati
 	if body, err = s.getRequestBody(leaseID, inventoryID, skuID, leaseDaysDuration); err == nil {
 		req, _ := s.createRequest("POST", fmt.Sprintf("%s/v1/lease", s.URL), body)
 
-		if res, err = s.client.Do(req); err == nil && res.StatusCode == http.StatusOK {
+		if res, err = s.client.Do(req); err == nil && res.StatusCode == http.StatusCreated {
 			resBodyBytes, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(resBodyBytes, &leaseCreateResponse)
 
