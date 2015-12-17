@@ -21,7 +21,23 @@ func NewClient(apiKey string, url string, client clientDoer) *PDClient {
 	}
 }
 
-func (s *PDClient) PostLease(leaseID, inventoryID, skuID string, leaseDaysDuration int64) (leaseCreateResponse LeaseCreateResponseBody, res *http.Response, err error) {
+//GetTask - wrapper to rest call to GET task from dispenser
+func (s *PDClient) GetTask(taskID string) (task TaskResponse, res *http.Response, err error) {
+	req, _ := s.createRequest("GET", fmt.Sprintf("%s/v1/task/%s", s.URL, taskID), bytes.NewBufferString(``))
+
+	if res, err = s.client.Do(req); err == nil && res.StatusCode == http.StatusOK {
+		resBodyBytes, _ := ioutil.ReadAll(res.Body)
+		json.Unmarshal(resBodyBytes, &task)
+
+	} else {
+		lo.G.Error("client Do Error: ", err)
+		lo.G.Error("client Res: ", res)
+		err = ErrInvalidDispenserResponse
+	}
+	return
+}
+
+func (s *PDClient) PostLease(leaseID, inventoryID, skuID string, leaseDaysDuration int64) (leaseCreateResponse TaskResponse, res *http.Response, err error) {
 	var body io.Reader
 	if body, err = s.getRequestBody(leaseID, inventoryID, skuID, leaseDaysDuration); err == nil {
 		req, _ := s.createRequest("POST", fmt.Sprintf("%s/v1/lease", s.URL), body)
@@ -63,7 +79,10 @@ func (s *PDClient) getRequestBody(leaseID, inventoryID, skuID string, durationDa
 }
 
 func (s *PDClient) createRequest(method string, urlStr string, body io.Reader) (req *http.Request, err error) {
-	req, err = http.NewRequest(method, urlStr, body)
-	req.Header.Add("X-API-KEY", s.APIKey)
+	if req, err = http.NewRequest(method, urlStr, body); err == nil {
+		req.Header.Add("X-API-KEY", s.APIKey)
+	} else {
+		lo.G.Error("request creation failed: ", err)
+	}
 	return
 }
