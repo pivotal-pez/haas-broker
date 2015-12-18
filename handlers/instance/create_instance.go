@@ -6,19 +6,66 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/pivotal-pez/cfmgo"
+	"github.com/pivotal-pez/cfmgo/params"
+	"github.com/xchapter7x/lo"
+	"gopkg.in/mgo.v2/bson"
+
 	"github.com/gorilla/mux"
 	"github.com/pivotal-pez/haas-broker/handlers/catalog"
 	"github.com/pivotal-pez/pezdispenser/pdclient"
 )
 
+//GetTaskID - get a task id from a instanceid on a given collection
+var GetTaskID = func(instanceID string, collection cfmgo.Collection) (taskID string, err error) {
+
+	if instanceID == "" {
+		err = ErrInvalidInstanceID
+
+	} else {
+		query := new(params.RequestParams)
+		query.Q = bson.M{
+			CollectionInstanceIDQueryField: instanceID,
+		}
+		result := new(InstanceModel)
+
+		if _, err = collection.Find(query, result); err == nil {
+			taskID = result.TaskGUID
+		}
+	}
+	return
+}
+
 //GetHandler - this is the handler that will be used for polling async
 //provisioning status by the service broker
 func (s *InstanceCreator) GetHandler(w http.ResponseWriter, req *http.Request) {
+	var (
+		err          error
+		taskID       string
+		responseBody string
+		task         pdclient.TaskResponse
+	)
 	s.parsePutVars(req)
-	responseBody := `{
-		"state": "succeeded",
-		"description": "Creating service (100% complete)."
-	}`
+
+	if taskID, err = GetTaskID(s.Model.InstanceID, s.Collection); err == nil {
+		client := pdclient.NewClient(s.Dispenser.ApiKey, s.Dispenser.URL, s.ClientDoer)
+
+		if task, _, err = client.GetTask(taskID); err == nil {
+
+			switch task.Status {
+			case TaskStatusComplete:
+				responseBody = fmt.Sprintf(SuccessGetHandlerBody, task.Status)
+			case TaskStatusFailed:
+				responseBody = fmt.Sprintf(FailureGetHandlerBody, task.Status)
+			default:
+				responseBody = fmt.Sprintf(PendingGethandlerBody, task.Status)
+			}
+		}
+	}
+	if err != nil {
+		lo.G.Error("gethandler error: ", err)
+		responseBody = fmt.Sprintf(PendingGethandlerBody, err.Error())
+	}
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, responseBody)
 }
@@ -46,7 +93,7 @@ func (s *InstanceCreator) PutHandler(w http.ResponseWriter, req *http.Request) {
 				s.Model.TaskGUID = leaseRes.ID
 				s.Model.Save(s.Collection)
 				statusCode = http.StatusAccepted
-				responseBody = fmt.Sprintf(`{"dashboard_url": "%s/show/%s"}`, dashboardUrl, s.Model.TaskGUID)
+				responseBody = fmt.Sprintf(`{"dashboard_url": "https://%s/show/%s"}`, dashboardUrl, s.Model.TaskGUID)
 			}
 		}
 	}

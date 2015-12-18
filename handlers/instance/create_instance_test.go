@@ -2,18 +2,30 @@ package instance_test
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pivotal-pez/cfmgo"
 	. "github.com/pivotal-pez/haas-broker/handlers/instance"
 	"github.com/pivotal-pez/pezdispenser/pdclient/fake"
 )
 
 var _ = Describe("InstanceCreator", func() {
-
+	Describe("given GetHandler() method", func() {
+		Context("when the instance is not yet provisioned", func() {
+			runGetHandlerContext("running", "in progress")
+		})
+		Context("when the instance is provisioned", func() {
+			runGetHandlerContext("complete", "succeeded")
+		})
+		Context("when the instance has failed provisioning", func() {
+			runGetHandlerContext("failed", "failed")
+		})
+	})
 	Describe("given PutHandler() method", func() {
 		Context("when called with a new service instance request", func() {
 			var (
@@ -47,6 +59,7 @@ var _ = Describe("InstanceCreator", func() {
 				}
 				instanceCreator.PutHandler(responseWriter, request)
 			})
+
 			It("then it should return a proper statuscode for async calls", func() {
 				Ω(responseWriter.Code).Should(Equal(http.StatusAccepted))
 			})
@@ -85,3 +98,44 @@ var _ = Describe("InstanceCreator", func() {
 		})
 	})
 })
+
+func runGetHandlerContext(dispenserStatus string, brokerResponseEvaluator string) {
+	var (
+		instanceCreator    *InstanceCreator
+		responseWriter     *httptest.ResponseRecorder
+		controlRequestBody        = "{}"
+		dispenserResponse  string = fmt.Sprintf(`{
+					"ID": "567471e1c19475001d000001","Timestamp": 1450471905595633562,"Expires": 0,
+					"Status": "%s",
+					"Profile": "agent_task_long_running","CallerName": "m1.small","MetaData": {
+						"phinfo": {"data": [
+								{
+									"requestid": "2676f04e-a5c9-11e5-88f7-0050569b9b57"
+								}],
+							"message": "ok",
+							"status": "success"
+						}}}`, dispenserStatus)
+	)
+	BeforeEach(func() {
+		GetTaskID = func(instanceID string, collection cfmgo.Collection) (taskID string, err error) {
+			return "567471e1c19475001d000001", nil
+		}
+		instanceCreator = new(InstanceCreator)
+		instanceCreator.Collection = new(fakeCol)
+		responseWriter = httptest.NewRecorder()
+		request := &http.Request{
+			Body: ioutil.NopCloser(bytes.NewBufferString(controlRequestBody)),
+		}
+		instanceCreator.ClientDoer = &fake.ClientDoer{
+			Response: &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       ioutil.NopCloser(bytes.NewBufferString(dispenserResponse)),
+			},
+		}
+		instanceCreator.GetHandler(responseWriter, request)
+	})
+	It(fmt.Sprintf("then it should return a %s message", brokerResponseEvaluator), func() {
+		body, _ := ioutil.ReadAll(responseWriter.Body)
+		Ω(body).Should(ContainSubstring(brokerResponseEvaluator))
+	})
+}
