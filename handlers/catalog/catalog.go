@@ -20,7 +20,7 @@ func Get() func(http.ResponseWriter, *http.Request) {
 				"description": "Lease on-demand hardware as a service",
 				"metadata":{
             "displayName":"PEZ-HaaS",
-            "imageUrl":"https://pez.pezapp.io/img/pez-clear.png",
+            "imageUrl":"http://s12.postimg.org/wt91ic9pp/broker_icon.png",
 						"providerDisplayName":"PEZ"
          },
 				"bindable": false,
