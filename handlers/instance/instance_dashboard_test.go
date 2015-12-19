@@ -72,7 +72,9 @@ func runGetDashboardHandlerContext(dispenserStatus string, brokerResponseEvaluat
 				Body:       ioutil.NopCloser(bytes.NewBufferString(dispenserResponse)),
 			},
 		}
-		BuildDashboardHandler(handlers.DispenserCreds{}, new(fakeCol), render.New(), fakeClientDoer)(responseWriter, request)
+		BuildDashboardHandler(handlers.DispenserCreds{}, new(fakeCol), render.New(render.Options{
+			Directory: "../../templates",
+		}), fakeClientDoer)(responseWriter, request)
 	})
 	It(fmt.Sprintf("then it should return a %s message", brokerResponseEvaluator), func() {
 		body, _ := ioutil.ReadAll(responseWriter.Body)
