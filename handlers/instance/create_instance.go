@@ -22,6 +22,7 @@ func (s *InstanceCreator) GetHandler(w http.ResponseWriter, req *http.Request) {
 		responseBody string
 		task         pdclient.TaskResponse
 	)
+	s.Collection.Wake()
 	s.parsePutVars(req)
 
 	if taskID, err = GetTaskID(s.Model.InstanceID, s.Collection); err == nil {
@@ -56,6 +57,7 @@ func (s *InstanceCreator) PutHandler(w http.ResponseWriter, req *http.Request) {
 		statusCode   int
 		responseBody string
 	)
+	s.Collection.Wake()
 	s.parsePutVars(req)
 	if bodyBytes, err = ioutil.ReadAll(req.Body); err == nil {
 
@@ -85,7 +87,7 @@ func (s *InstanceCreator) PutHandler(w http.ResponseWriter, req *http.Request) {
 
 func (s *InstanceCreator) parsePutVars(req *http.Request) {
 	vars := mux.Vars(req)
-	s.Model.InstanceID = vars["instance_id"]
+	s.Model.InstanceID = vars[InstanceIDVarName]
 }
 
 func (s *InstanceCreator) getPlanName() string {

@@ -13,6 +13,10 @@ type fakeCol struct {
 	FakeResult []InstanceModel
 }
 
+func (s *fakeCol) Wake() {
+
+}
+
 func (s *fakeCol) UpsertID(id interface{}, update interface{}) (info *mgo.ChangeInfo, err error) {
 	s.SpyID = id
 	s.SpyUpdate = update

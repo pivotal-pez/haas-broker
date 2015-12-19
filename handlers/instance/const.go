@@ -1,12 +1,19 @@
 package instance
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 const (
-	//HandlerPath - path to normal instance handlers
-	HandlerPath = "/v2/service_instances/{instance_id}"
-	//AsyncHandlerPath - path to async poller
-	AsyncHandlerPath = "/v2/service_instances/{instance_id}/last_operation"
+	//PendingResponse -
+	PendingResponse = `HaaS Instance not ready. Please try again in a few seconds.`
+	//FailureResponse -
+	FailureResponse = `HaaS Instance could not be provisioned. Sorry.`
+	//InstanceIDVarName --
+	InstanceIDVarName = "instance_id"
+	//TaskGUIVarName --
+	TaskGUIDVarName = "taskguid"
 	//TaskStatusComplete ---
 	TaskStatusComplete = "complete"
 	//AgentTaskStatusFailed ---
@@ -31,6 +38,12 @@ const (
 )
 
 var (
+	//ServiceInstanceDash -
+	ServiceInstanceDash = fmt.Sprintf("/show/{%s}", TaskGUIDVarName)
+	//HandlerPath - path to normal instance handlers
+	HandlerPath = fmt.Sprintf("/v2/service_instances/{%s}", InstanceIDVarName)
+	//AsyncHandlerPath - path to async poller
+	AsyncHandlerPath     = "/v2/service_instances/{instance_id}/last_operation"
 	dashboardUrl         = "https://www.pezapp.io"
 	ErrInvalidInstanceID = errors.New("invalid instance id while attempting to get taskid")
 )

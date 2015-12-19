@@ -13,6 +13,7 @@ import (
 	"github.com/pivotal-pez/haas-broker/handlers/binding"
 	"github.com/pivotal-pez/haas-broker/handlers/catalog"
 	"github.com/pivotal-pez/haas-broker/handlers/instance"
+	"github.com/unrolled/render"
 	"github.com/xchapter7x/lo"
 )
 
@@ -35,7 +36,7 @@ func main() {
 			user := basicAuthService.Credentials[os.Getenv("BASIC_AUTH_USERNAME_FIELD")].(string)
 			pass := basicAuthService.Credentials[os.Getenv("BASIC_AUTH_PASSWORD_FIELD")].(string)
 			n.Use(auth.Basic(user, pass))
-			n.UseHandler(getRouter(collection, dispenserCreds, appEnv))
+			n.UseHandler(getRouter(render.New(), collection, dispenserCreds, appEnv))
 			lo.G.Debug("starting server")
 			n.Run(fmt.Sprintf(":%s", os.Getenv("PORT")))
 			lo.G.Panic("run didnt lock!!!")
@@ -61,7 +62,7 @@ func getDispenserInfo(appEnv *cfenv.App) handlers.DispenserCreds {
 	}
 }
 
-func getRouter(collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds, appEnv *cfenv.App) (router *mux.Router) {
+func getRouter(renderer *render.Render, collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds, appEnv *cfenv.App) (router *mux.Router) {
 	router = mux.NewRouter()
 	router.HandleFunc(catalog.HandlerPath, catalog.Get()).Methods("GET")
 	router.HandleFunc(instance.AsyncHandlerPath, instance.Get(collection, dispenserCreds)).Methods("GET")
@@ -70,5 +71,6 @@ func getRouter(collection cfmgo.Collection, dispenserCreds handlers.DispenserCre
 	router.HandleFunc(instance.HandlerPath, instance.Delete(collection)).Methods("DELETE")
 	router.HandleFunc(binding.HandlerPath, binding.Delete(collection)).Methods("DELETE")
 	router.HandleFunc(binding.HandlerPath, binding.Put(collection)).Methods("PUT")
+	router.HandleFunc(instance.ServiceInstanceDash, instance.GetDashboard(dispenserCreds, collection, renderer)).Methods("GET")
 	return
 }
