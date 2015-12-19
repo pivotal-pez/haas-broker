@@ -2,7 +2,7 @@ package fake
 
 import "net/http"
 
-//CLientDoer - a fake implementation of a clientdoer interface
+//ClientDoer - a fake implementation of a clientdoer interface
 type ClientDoer struct {
 	Response   *http.Response
 	Error      error

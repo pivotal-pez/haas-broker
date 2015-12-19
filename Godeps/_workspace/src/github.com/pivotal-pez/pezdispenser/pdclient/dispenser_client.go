@@ -37,6 +37,7 @@ func (s *PDClient) GetTask(taskID string) (task TaskResponse, res *http.Response
 	return
 }
 
+//PostLease -- allows a client user to post a lease to dispenser
 func (s *PDClient) PostLease(leaseID, inventoryID, skuID string, leaseDaysDuration int64) (leaseCreateResponse TaskResponse, res *http.Response, err error) {
 	var body io.Reader
 	if body, err = s.getRequestBody(leaseID, inventoryID, skuID, leaseDaysDuration); err == nil {
