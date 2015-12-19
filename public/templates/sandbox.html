@@ -1,0 +1,10 @@
+<form ng-submit="pac.submitSandbox()" id="sandboxForm">
+  Request a sandbox environment: <div id= "sandboxRequestResult"></div><br/>
+  <label>Email:
+    <input type="text" ng-model="myEmail" name="email" ng-readonly="true"/>
+  </label>
+  <label>Name:
+    <input type="text" ng-model="myName" name="name"/>
+  </label>
+  <input type="submit" id="sandboxSubmit" value="Submit"/>
+</form>
