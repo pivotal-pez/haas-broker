@@ -116,7 +116,12 @@ func runGetHandlerContext(dispenserStatus string, brokerResponseEvaluator string
 							"status": "success"
 						}}}`, dispenserStatus)
 	)
+	var origGetTaskID func(instanceID string, collection cfmgo.Collection) (taskID string, err error)
+	AfterEach(func() {
+		GetTaskID = origGetTaskID
+	})
 	BeforeEach(func() {
+		origGetTaskID = GetTaskID
 		GetTaskID = func(instanceID string, collection cfmgo.Collection) (taskID string, err error) {
 			return "567471e1c19475001d000001", nil
 		}
