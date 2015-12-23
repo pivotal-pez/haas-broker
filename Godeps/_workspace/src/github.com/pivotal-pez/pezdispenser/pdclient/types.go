@@ -33,4 +33,10 @@ type (
 		CallerName string                 `json:"CallerName"`
 		MetaData   map[string]interface{} `json:"MetaData"`
 	}
+	ProvisionHostInfo struct {
+		Data []ProvisionHostData `json:"data"`
+	}
+	ProvisionHostData struct {
+		RequestID string `json:"requestid"`
+	}
 )

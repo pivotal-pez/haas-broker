@@ -24,6 +24,7 @@ type (
 		SpaceGUID        string                 `json:"space_guid"`
 		Parameters       map[string]interface{} `json:"parameters"`
 		TaskGUID         string
+		RequestID        string
 	}
 	clientDoer interface {
 		Do(req *http.Request) (resp *http.Response, err error)

@@ -70,6 +70,7 @@ func (s *InstanceCreator) PutHandler(w http.ResponseWriter, req *http.Request) {
 
 			if leaseRes, _, err = client.PostLease(s.Model.ServiceID, inventoryID, s.getPlanName(), 14); err == nil {
 				s.Model.TaskGUID = leaseRes.ID
+				s.Model.RequestID = pdclient.GetRequestIDFromTaskResponse(leaseRes)
 				s.Model.Save(s.Collection)
 				statusCode = http.StatusAccepted
 				responseBody = fmt.Sprintf(`{"dashboard_url": "https://%s/show/%s"}`, dashboardUrl, s.Model.TaskGUID)

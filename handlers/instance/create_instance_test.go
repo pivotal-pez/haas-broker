@@ -31,7 +31,10 @@ var _ = Describe("InstanceCreator", func() {
 			var (
 				instanceCreator    *InstanceCreator
 				responseWriter     *httptest.ResponseRecorder
-				dispenserResponse  string = `{"id": "560ede8bfccecc0072000001"}`
+				controlRequestID          = "2676f04e-a5c9-11e5-88f7-0050569b9b57"
+				controlTaskID             = "560ede8bfccecc0072000001"
+				controlStatus             = "complete"
+				dispenserResponse         = makeDispenserResponse(controlTaskID, controlRequestID, controlStatus)
 				controlRequestBody string = `{
 					"organization_guid": "org-guid-here",
 					"plan_id":           "plan-guid-here",
@@ -74,7 +77,8 @@ var _ = Describe("InstanceCreator", func() {
 				Ω(instanceCreator.Model.PlanID).Should(Equal("plan-guid-here"))
 				Ω(instanceCreator.Model.ServiceID).Should(Equal("service-guid-here"))
 				Ω(instanceCreator.Model.SpaceGUID).Should(Equal("space-guid-here"))
-				Ω(instanceCreator.Model.TaskGUID).Should(Equal("560ede8bfccecc0072000001"))
+				Ω(instanceCreator.Model.TaskGUID).Should(Equal(controlTaskID))
+				Ω(instanceCreator.Model.RequestID).Should(Equal(controlRequestID))
 			})
 
 			Context("and request has an invalid body", func() {
@@ -103,18 +107,10 @@ func runGetHandlerContext(dispenserStatus string, brokerResponseEvaluator string
 	var (
 		instanceCreator    *InstanceCreator
 		responseWriter     *httptest.ResponseRecorder
-		controlRequestBody        = "{}"
-		dispenserResponse  string = fmt.Sprintf(`{
-					"ID": "567471e1c19475001d000001","Timestamp": 1450471905595633562,"Expires": 0,
-					"Status": "%s",
-					"Profile": "agent_task_long_running","CallerName": "m1.small","MetaData": {
-						"phinfo": {"data": [
-								{
-									"requestid": "2676f04e-a5c9-11e5-88f7-0050569b9b57"
-								}],
-							"message": "ok",
-							"status": "success"
-						}}}`, dispenserStatus)
+		controlRequestBody = "{}"
+		controlRequestID   = "2676f04e-a5c9-11e5-88f7-0050569b9b57"
+		controlTaskID      = "560ede8bfccecc0072000001"
+		dispenserResponse  = makeDispenserResponse(controlTaskID, controlRequestID, dispenserStatus)
 	)
 	var origGetTaskID func(instanceID string, collection cfmgo.Collection) (taskID string, err error)
 	AfterEach(func() {
@@ -143,4 +139,26 @@ func runGetHandlerContext(dispenserStatus string, brokerResponseEvaluator string
 		body, _ := ioutil.ReadAll(responseWriter.Body)
 		Ω(body).Should(ContainSubstring(brokerResponseEvaluator))
 	})
+}
+
+func makeDispenserResponse(id string, requestID string, status string) string {
+	return fmt.Sprintf(`{
+		"ID": "%s",
+		"Timestamp": 1450479310174826830,
+		"Expires": 0,
+		"Status": "%s",
+		"Profile": "agent_task_long_running",
+		"CallerName": "m1.small",
+		"MetaData": {
+			"phinfo": {
+				"data": [
+					{
+						"requestid": "%s"
+					}
+				],
+				"message": "ok",
+				"status": "success"
+			}
+		}
+	}`, id, status, requestID)
 }
