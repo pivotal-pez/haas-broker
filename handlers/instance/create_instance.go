@@ -13,6 +13,14 @@ import (
 	"github.com/pivotal-pez/pezdispenser/pdclient"
 )
 
+//DeleteHandler - this is the handler that will be used when a user deletes a
+//service instance
+func (s *InstanceCreator) DeleteHandler(w http.ResponseWriter, req *http.Request) {
+	s.Collection.Wake()
+	s.parsePutVars(req)
+
+}
+
 //GetHandler - this is the handler that will be used for polling async
 //provisioning status by the service broker
 func (s *InstanceCreator) GetHandler(w http.ResponseWriter, req *http.Request) {
