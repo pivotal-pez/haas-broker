@@ -16,9 +16,32 @@ import (
 //DeleteHandler - this is the handler that will be used when a user deletes a
 //service instance
 func (s *InstanceCreator) DeleteHandler(w http.ResponseWriter, req *http.Request) {
+
+	var (
+		err          error
+		requestID    string
+		responseBody = "{}"
+		statusCode   int
+	)
 	s.Collection.Wake()
 	s.parsePutVars(req)
 
+	if requestID, err = GetTaskID(s.Model.InstanceID, s.Collection); err == nil {
+		client := pdclient.NewClient(s.Dispenser.ApiKey, s.Dispenser.URL, s.ClientDoer)
+		inventoryID := fmt.Sprintf("%s-%s", s.Model.OrganizationGUID, s.Model.SpaceGUID)
+		meta := map[string]interface{}{
+			RequestIDMetadataFieldname: requestID,
+		}
+		_, err = client.DeleteLease(s.Model.ServiceID, inventoryID, s.getPlanName(), meta)
+		statusCode = http.StatusOK
+	}
+
+	if err != nil {
+		lo.G.Error("deletehandler error: ", err)
+		statusCode = http.StatusGone
+	}
+	w.WriteHeader(statusCode)
+	fmt.Fprintf(w, responseBody)
 }
 
 //GetHandler - this is the handler that will be used for polling async

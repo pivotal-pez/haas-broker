@@ -10,10 +10,4 @@ var (
 	//ProvisionHostInformationFieldname - map key name for provision host info in MetaData
 	//of TaskResponse
 	ProvisionHostInformationFieldname = "phinfo"
-
-	//RequestIDFieldname - fieldname in metadata object
-	RequestIDFieldname = "requestid"
-
-	//DataFieldname - data fieldname
-	DataFieldname = "data"
 )

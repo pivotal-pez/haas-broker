@@ -20,6 +20,8 @@ const (
 	TaskStatusFailed = "failed"
 	//CollectionInstanceIDQueryField --
 	CollectionInstanceIDQueryField = "instanceid"
+	//RequestIDMetadataFieldname -- fieldname for the metadata requestid
+	RequestIDMetadataFieldname = "requestid"
 	//SuccessGetHandlerBody --
 	SuccessGetHandlerBody = `{
 		"state": "succeeded",

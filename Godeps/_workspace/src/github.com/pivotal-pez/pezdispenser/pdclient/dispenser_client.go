@@ -37,10 +37,28 @@ func (s *PDClient) GetTask(taskID string) (task TaskResponse, res *http.Response
 	return
 }
 
+//DeleteLease -- allows a client user to make a DELETE lease call to dispenser
+func (s *PDClient) DeleteLease(leaseID, inventoryID, skuID string, metadata map[string]interface{}) (res *http.Response, err error) {
+	var body io.Reader
+	if body, err = s.getRequestBody(leaseID, inventoryID, skuID, 0, metadata); err == nil {
+		req, _ := s.createRequest("DELETE", fmt.Sprintf("%s/v1/lease", s.URL), body)
+
+		if res, err = s.client.Do(req); err != nil || res.StatusCode != http.StatusOK {
+			lo.G.Error("client Do Error: ", err)
+			lo.G.Error("client Res: ", res)
+			err = ErrInvalidDispenserResponse
+		}
+
+	} else {
+		lo.G.Error("request body error: ", err.Error())
+	}
+	return
+}
+
 //PostLease -- allows a client user to post a lease to dispenser
 func (s *PDClient) PostLease(leaseID, inventoryID, skuID string, leaseDaysDuration int64) (leaseCreateResponse TaskResponse, res *http.Response, err error) {
 	var body io.Reader
-	if body, err = s.getRequestBody(leaseID, inventoryID, skuID, leaseDaysDuration); err == nil {
+	if body, err = s.getRequestBody(leaseID, inventoryID, skuID, leaseDaysDuration, make(map[string]interface{}, 1)); err == nil {
 		req, _ := s.createRequest("POST", fmt.Sprintf("%s/v1/lease", s.URL), body)
 
 		if res, err = s.client.Do(req); err == nil && res.StatusCode == http.StatusCreated {
@@ -59,19 +77,20 @@ func (s *PDClient) PostLease(leaseID, inventoryID, skuID string, leaseDaysDurati
 	return
 }
 
-func (s *PDClient) getRequestBody(leaseID, inventoryID, skuID string, durationDays int64) (body io.Reader, err error) {
+func (s *PDClient) getRequestBody(leaseID, inventoryID, skuID string, durationDays int64, meta map[string]interface{}) (body io.Reader, err error) {
 	var (
 		now       = time.Now()
 		bodyBytes []byte
 	)
 	expire := now.Add(time.Duration(durationDays) * 24 * time.Hour)
 	leaseBody := LeaseRequestBody{
-		LeaseID:        leaseID,
-		InventoryID:    inventoryID,
-		Sku:            skuID,
-		LeaseDuration:  durationDays,
-		LeaseEndDate:   expire.UnixNano(),
-		LeaseStartDate: now.UnixNano(),
+		LeaseID:              leaseID,
+		InventoryID:          inventoryID,
+		Sku:                  skuID,
+		LeaseDuration:        durationDays,
+		LeaseEndDate:         expire.UnixNano(),
+		LeaseStartDate:       now.UnixNano(),
+		LeaseProcurementMeta: meta,
 	}
 	if bodyBytes, err = json.Marshal(leaseBody); err == nil {
 		body = bytes.NewBuffer(bodyBytes)

@@ -15,6 +15,30 @@ import (
 )
 
 var _ = Describe("InstanceCreator", func() {
+	Describe("given DeleteHandler() method", func() {
+
+		Context("when called yielding an error on delete", func() {
+			responseWriter := httptest.NewRecorder()
+			setupDeleteHandlerContext(http.StatusGone, responseWriter)
+			controlResponseBody := "{}"
+			It("then it should issue a delete successful call to dispenser", func() {
+				body, _ := ioutil.ReadAll(responseWriter.Body)
+				Ω(responseWriter.Code).Should(Equal(http.StatusGone))
+				Ω(body).Should(Equal([]byte(controlResponseBody)))
+			})
+		})
+
+		Context("when called against a valid instanceid", func() {
+			responseWriter := httptest.NewRecorder()
+			setupDeleteHandlerContext(http.StatusOK, responseWriter)
+			controlResponseBody := "{}"
+			It("then it should issue a delete successful call to dispenser", func() {
+				body, _ := ioutil.ReadAll(responseWriter.Body)
+				Ω(responseWriter.Code).Should(Equal(http.StatusOK))
+				Ω(body).Should(Equal([]byte(controlResponseBody)))
+			})
+		})
+	})
 	Describe("given GetHandler() method", func() {
 		Context("when the instance is not yet provisioned", func() {
 			runGetHandlerContext("running", "in progress")
@@ -102,6 +126,46 @@ var _ = Describe("InstanceCreator", func() {
 		})
 	})
 })
+
+func setupDeleteHandlerContext(statusCode int, responseWriter *httptest.ResponseRecorder) {
+
+	var (
+		instanceCreator     *InstanceCreator
+		origGetTaskID       func(instanceID string, collection cfmgo.Collection) (taskID string, err error)
+		controlResponseBody        = `{}`
+		controlRequestBody  string = `{
+					"organization_guid": "org-guid-here",
+					"plan_id":           "plan-guid-here",
+					"service_id":        "service-guid-here",
+					"space_guid":        "space-guid-here",
+					"parameters":        {
+						"parameter1": 1,
+						"parameter2": "value"
+					}
+				}`
+	)
+	AfterEach(func() {
+		GetTaskID = origGetTaskID
+	})
+	BeforeEach(func() {
+		origGetTaskID = GetTaskID
+		GetTaskID = func(instanceID string, collection cfmgo.Collection) (taskID string, err error) {
+			return "567471e1c19475001d000001", nil
+		}
+		instanceCreator = new(InstanceCreator)
+		instanceCreator.Collection = new(fakeCol)
+		request := &http.Request{
+			Body: ioutil.NopCloser(bytes.NewBufferString(controlRequestBody)),
+		}
+		instanceCreator.ClientDoer = &fake.ClientDoer{
+			Response: &http.Response{
+				StatusCode: statusCode,
+				Body:       ioutil.NopCloser(bytes.NewBufferString(controlResponseBody)),
+			},
+		}
+		instanceCreator.DeleteHandler(responseWriter, request)
+	})
+}
 
 func runGetHandlerContext(dispenserStatus string, brokerResponseEvaluator string) {
 	var (
