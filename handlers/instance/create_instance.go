@@ -101,6 +101,7 @@ func (s *InstanceCreator) PutHandler(w http.ResponseWriter, req *http.Request) {
 
 			if leaseRes, _, err = client.PostLease(s.Model.ServiceID, inventoryID, s.getPlanName(), 14); err == nil {
 				s.Model.TaskGUID = leaseRes.ID
+				lo.G.Debug("leaserequest response: ", leaseRes)
 
 				if s.Model.RequestID, err = pdclient.GetRequestIDFromTaskResponse(leaseRes); err == nil {
 					s.Model.Save(s.Collection)

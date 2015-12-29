@@ -11,6 +11,8 @@ func GetRequestIDFromTaskResponse(taskResponse TaskResponse) (requestID string, 
 	firstRecordIndex := 0
 	meta := taskResponse.MetaData
 	provisionHostInfo := ProvisionHostInfo{}
+	lo.G.Debug("taskResponse: ", taskResponse)
+	lo.G.Debug("metadata: ", meta)
 
 	if provisionHostInfoBytes, err = json.Marshal(meta[ProvisionHostInformationFieldname]); err == nil {
 
