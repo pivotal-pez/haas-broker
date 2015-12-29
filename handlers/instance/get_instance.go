@@ -3,6 +3,7 @@ package instance
 import (
 	"github.com/pivotal-pez/cfmgo"
 	"github.com/pivotal-pez/cfmgo/params"
+	"github.com/xchapter7x/lo"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -27,6 +28,7 @@ var GetRequestID = func(instanceID string, collection cfmgo.Collection) (request
 }
 
 func getInstance(instanceID string, collection cfmgo.Collection) (instance InstanceModel, err error) {
+	instance = InstanceModel{}
 	var firstResultIndex = 0
 	if instanceID == "" {
 		err = ErrInvalidInstanceID
@@ -39,7 +41,14 @@ func getInstance(instanceID string, collection cfmgo.Collection) (instance Insta
 		var result = make([]InstanceModel, 1)
 
 		if _, err = collection.Find(query, &result); err == nil {
-			instance = result[firstResultIndex]
+
+			if len(result) > firstResultIndex {
+				instance = result[firstResultIndex]
+
+			} else {
+				lo.G.Error("no records found in:", result)
+				err = ErrNoRecordsInResult
+			}
 		}
 	}
 	return

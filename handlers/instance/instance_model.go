@@ -18,8 +18,9 @@ func (s InstanceModel) UpdateField(col cfmgo.Collection, fieldname string, field
 		bson.M{
 			"instanceid": s.InstanceID,
 		},
-		bson.M{
+		bson.M{"$set": bson.M{
 			fieldname: fieldvalue,
+		},
 		},
 		nil,
 	)

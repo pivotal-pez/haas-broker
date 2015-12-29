@@ -48,4 +48,6 @@ var (
 	AsyncHandlerPath     = "/v2/service_instances/{instance_id}/last_operation"
 	dashboardUrl         = "https://www.pezapp.io"
 	ErrInvalidInstanceID = errors.New("invalid instance id while attempting to get taskid")
+	//ErrNoRecordsInResult - empty result set
+	ErrNoRecordsInResult = errors.New("no records found in result set")
 )
