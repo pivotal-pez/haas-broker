@@ -131,7 +131,7 @@ func setupDeleteHandlerContext(statusCode int, responseWriter *httptest.Response
 
 	var (
 		instanceCreator     *InstanceCreator
-		origGetTaskID       func(instanceID string, collection cfmgo.Collection) (taskID string, err error)
+		origGetRequestID    func(instanceID string, collection cfmgo.Collection) (taskID string, err error)
 		controlResponseBody        = `{}`
 		controlRequestBody  string = `{
 					"organization_guid": "org-guid-here",
@@ -145,11 +145,11 @@ func setupDeleteHandlerContext(statusCode int, responseWriter *httptest.Response
 				}`
 	)
 	AfterEach(func() {
-		GetTaskID = origGetTaskID
+		GetRequestID = origGetRequestID
 	})
 	BeforeEach(func() {
-		origGetTaskID = GetTaskID
-		GetTaskID = func(instanceID string, collection cfmgo.Collection) (taskID string, err error) {
+		origGetRequestID = GetRequestID
+		GetRequestID = func(instanceID string, collection cfmgo.Collection) (taskID string, err error) {
 			return "567471e1c19475001d000001", nil
 		}
 		instanceCreator = new(InstanceCreator)
@@ -169,6 +169,7 @@ func setupDeleteHandlerContext(statusCode int, responseWriter *httptest.Response
 
 func runGetHandlerContext(dispenserStatus string, brokerResponseEvaluator string) {
 	var (
+		fakeCollection     *fakeCol
 		instanceCreator    *InstanceCreator
 		responseWriter     *httptest.ResponseRecorder
 		controlRequestBody = "{}"
@@ -186,7 +187,8 @@ func runGetHandlerContext(dispenserStatus string, brokerResponseEvaluator string
 			return "567471e1c19475001d000001", nil
 		}
 		instanceCreator = new(InstanceCreator)
-		instanceCreator.Collection = new(fakeCol)
+		fakeCollection = new(fakeCol)
+		instanceCreator.Collection = fakeCollection
 		responseWriter = httptest.NewRecorder()
 		request := &http.Request{
 			Body: ioutil.NopCloser(bytes.NewBufferString(controlRequestBody)),
@@ -202,6 +204,10 @@ func runGetHandlerContext(dispenserStatus string, brokerResponseEvaluator string
 	It(fmt.Sprintf("then it should return a %s message", brokerResponseEvaluator), func() {
 		body, _ := ioutil.ReadAll(responseWriter.Body)
 		Ω(body).Should(ContainSubstring(brokerResponseEvaluator))
+	})
+
+	It("then it should save the requestID from the dispenser response", func() {
+		Ω(fakeCollection.UpdateAndModifyCallCount).Should(BeNumerically(">", 0))
 	})
 }
 

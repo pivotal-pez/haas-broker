@@ -26,7 +26,7 @@ func (s *InstanceCreator) DeleteHandler(w http.ResponseWriter, req *http.Request
 	s.Collection.Wake()
 	s.parsePutVars(req)
 
-	if requestID, err = GetTaskID(s.Model.InstanceID, s.Collection); err == nil {
+	if requestID, err = GetRequestID(s.Model.InstanceID, s.Collection); err == nil {
 		client := pdclient.NewClient(s.Dispenser.ApiKey, s.Dispenser.URL, s.ClientDoer)
 		inventoryID := fmt.Sprintf("%s-%s", s.Model.OrganizationGUID, s.Model.SpaceGUID)
 		meta := map[string]interface{}{
@@ -60,6 +60,10 @@ func (s *InstanceCreator) GetHandler(w http.ResponseWriter, req *http.Request) {
 		client := pdclient.NewClient(s.Dispenser.ApiKey, s.Dispenser.URL, s.ClientDoer)
 
 		if task, _, err = client.GetTask(taskID); err == nil {
+
+			if requestID, err := pdclient.GetRequestIDFromTaskResponse(task); err == nil {
+				s.Model.UpdateField(s.Collection, RequestIDMetadataFieldname, requestID)
+			}
 
 			switch task.Status {
 			case TaskStatusComplete:
@@ -102,17 +106,16 @@ func (s *InstanceCreator) PutHandler(w http.ResponseWriter, req *http.Request) {
 			if leaseRes, _, err = client.PostLease(s.Model.ServiceID, inventoryID, s.getPlanName(), 14); err == nil {
 				s.Model.TaskGUID = leaseRes.ID
 				lo.G.Debug("leaserequest response: ", leaseRes)
-
-				if s.Model.RequestID, err = pdclient.GetRequestIDFromTaskResponse(leaseRes); err == nil {
-					s.Model.Save(s.Collection)
-					statusCode = http.StatusAccepted
-					responseBody = fmt.Sprintf(`{"dashboard_url": "https://%s/show/%s"}`, dashboardUrl, s.Model.TaskGUID)
-				}
+				s.Model.RequestID, _ = pdclient.GetRequestIDFromTaskResponse(leaseRes)
+				statusCode = http.StatusAccepted
+				responseBody = fmt.Sprintf(`{"dashboard_url": "https://%s/show/%s"}`, dashboardUrl, s.Model.TaskGUID)
+				s.Model.Save(s.Collection)
 			}
 		}
 	}
 
 	if err != nil {
+		lo.G.Error("PutHandler error: ", err)
 		statusCode = http.StatusNotAcceptable
 		responseBody = fmt.Sprintf(`{"error_message": "%s"}`, err.Error())
 	}

@@ -8,9 +8,10 @@ import (
 
 type fakeCol struct {
 	cfmgo.Collection
-	SpyID      interface{}
-	SpyUpdate  interface{}
-	FakeResult []InstanceModel
+	SpyID                    interface{}
+	SpyUpdate                interface{}
+	UpdateAndModifyCallCount int
+	FakeResult               []InstanceModel
 }
 
 func (s *fakeCol) Wake() {
@@ -20,6 +21,11 @@ func (s *fakeCol) Wake() {
 func (s *fakeCol) UpsertID(id interface{}, update interface{}) (info *mgo.ChangeInfo, err error) {
 	s.SpyID = id
 	s.SpyUpdate = update
+	return
+}
+
+func (s *fakeCol) FindAndModify(selector interface{}, update interface{}, result interface{}) (info *mgo.ChangeInfo, err error) {
+	s.UpdateAndModifyCallCount++
 	return
 }
 

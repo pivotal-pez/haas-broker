@@ -23,7 +23,6 @@ func GetRequestIDFromTaskResponse(taskResponse TaskResponse) (requestID string, 
 
 			} else {
 				lo.G.Error("no request id found in: ", provisionHostInfo)
-				err = ErrInvalidInnKeeperData
 			}
 
 		} else {
