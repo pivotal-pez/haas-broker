@@ -6,15 +6,23 @@ import (
 	"github.com/xchapter7x/lo"
 )
 
-func GetRequestIDFromTaskResponse(taskResponse TaskResponse) (requestID string) {
+func GetRequestIDFromTaskResponse(taskResponse TaskResponse) (requestID string, err error) {
+	var provisionHostInfoBytes []byte
 	firstRecordIndex := 0
 	meta := taskResponse.MetaData
 	provisionHostInfo := ProvisionHostInfo{}
 
-	if provisionHostInfoBytes, err := json.Marshal(meta[ProvisionHostInformationFieldname]); err == nil {
+	if provisionHostInfoBytes, err = json.Marshal(meta[ProvisionHostInformationFieldname]); err == nil {
 
 		if err = json.Unmarshal(provisionHostInfoBytes, &provisionHostInfo); err == nil {
-			requestID = provisionHostInfo.Data[firstRecordIndex].RequestID
+
+			if len(provisionHostInfo.Data) > firstRecordIndex {
+				requestID = provisionHostInfo.Data[firstRecordIndex].RequestID
+
+			} else {
+				lo.G.Error("no request id found in: ", provisionHostInfo)
+				err = ErrInvalidInnKeeperData
+			}
 
 		} else {
 			lo.G.Error("error unmarshalling: ", err, meta)

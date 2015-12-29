@@ -21,7 +21,7 @@ var _ = Describe("InstanceCreator", func() {
 			responseWriter := httptest.NewRecorder()
 			setupDeleteHandlerContext(http.StatusGone, responseWriter)
 			controlResponseBody := "{}"
-			It("then it should issue a delete successful call to dispenser", func() {
+			It("then it should return an error statusCode", func() {
 				body, _ := ioutil.ReadAll(responseWriter.Body)
 				Ω(responseWriter.Code).Should(Equal(http.StatusGone))
 				Ω(body).Should(Equal([]byte(controlResponseBody)))
