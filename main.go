@@ -68,7 +68,7 @@ func getRouter(renderer *render.Render, collection cfmgo.Collection, dispenserCr
 	router.HandleFunc(instance.AsyncHandlerPath, instance.Get(collection, dispenserCreds)).Methods("GET")
 	router.HandleFunc(instance.HandlerPath, instance.Put(collection, dispenserCreds, appEnv)).Methods("PUT")
 	router.HandleFunc(instance.HandlerPath, instance.Patch(collection)).Methods("PATCH")
-	router.HandleFunc(instance.HandlerPath, instance.Delete(collection)).Methods("DELETE")
+	router.HandleFunc(instance.HandlerPath, instance.Delete(collection, dispenserCreds)).Methods("DELETE")
 	router.HandleFunc(binding.HandlerPath, binding.Delete(collection)).Methods("DELETE")
 	router.HandleFunc(binding.HandlerPath, binding.Put(collection)).Methods("PUT")
 	router.HandleFunc(instance.ServiceInstanceDash, instance.GetDashboard(dispenserCreds, collection, renderer)).Methods("GET")
