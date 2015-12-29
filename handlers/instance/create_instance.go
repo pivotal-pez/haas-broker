@@ -127,6 +127,14 @@ func (s *InstanceCreator) PutHandler(w http.ResponseWriter, req *http.Request) {
 func (s *InstanceCreator) parsePutVars(req *http.Request) {
 	vars := mux.Vars(req)
 	s.Model.InstanceID = vars[InstanceIDVarName]
+
+	if v := req.FormValue("service_id"); v != "" {
+		s.Model.ServiceID = v
+	}
+
+	if v := req.FormValue("plan_id"); v != "" {
+		s.Model.PlanID = v
+	}
 }
 
 func (s *InstanceCreator) getPlanName() string {
