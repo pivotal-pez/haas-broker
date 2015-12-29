@@ -33,6 +33,7 @@ func (s *InstanceCreator) DeleteHandler(w http.ResponseWriter, req *http.Request
 			RequestIDMetadataFieldname: requestID,
 		}
 		_, err = client.DeleteLease(s.Model.ServiceID, inventoryID, s.getPlanName(), meta)
+		lo.G.Debug("deleteLease params: ", s.Model.ServiceID, inventoryID, s.getPlanName(), meta)
 		statusCode = http.StatusOK
 	}
 
