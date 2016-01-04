@@ -19,26 +19,36 @@ import (
 
 func main() {
 	lo.G.Debug("starting app")
+
 	if appEnv, err := cfenv.Current(); err == nil {
 		lo.G.Debug("parsed cfenv")
-		serviceName := os.Getenv("MONGO_SERVICE_NAME")
-		serviceURIName := os.Getenv("MONGO_SERVICE_URI_NAME")
-		serviceURI := cfmgo.GetServiceBinding(serviceName, serviceURIName, appEnv)
-		collectionName := os.Getenv("MONGO_COLLECTION_NAME")
-		collection := cfmgo.Connect(cfmgo.NewCollectionDialer, serviceURI, collectionName)
+		collection := getCollection(appEnv)
 		dispenserCreds := getDispenserInfo(appEnv)
-		lo.G.Debug("created mongo conn", serviceURI, collectionName)
 		n := negroni.Classic()
 		lo.G.Debug("created negroni")
-		router := getRouter(render.New(), collection, dispenserCreds, appEnv)
-		n.UseHandler(router)
-		lo.G.Debug("starting server")
-		n.Run(fmt.Sprintf(":%s", os.Getenv("PORT")))
-		lo.G.Panic("run didnt lock!!!")
+
+		if router, err := getRouter(render.New(), collection, dispenserCreds, appEnv); err == nil {
+			n.UseHandler(router)
+			lo.G.Debug("starting server")
+			n.Run(fmt.Sprintf(":%s", os.Getenv("PORT")))
+			lo.G.Panic("run didnt lock!!!")
+
+		} else {
+			lo.G.Panic("error, could not properly create all routers and routes: ", err)
+		}
 
 	} else {
 		lo.G.Panic("error, failure to parse cfenv: ", err.Error())
 	}
+}
+
+func getCollection(appEnv *cfenv.App) cfmgo.Collection {
+	serviceName := os.Getenv("MONGO_SERVICE_NAME")
+	serviceURIName := os.Getenv("MONGO_SERVICE_URI_NAME")
+	serviceURI := cfmgo.GetServiceBinding(serviceName, serviceURIName, appEnv)
+	collectionName := os.Getenv("MONGO_COLLECTION_NAME")
+	lo.G.Debug("created mongo conn", serviceURI, collectionName)
+	return cfmgo.Connect(cfmgo.NewCollectionDialer, serviceURI, collectionName)
 }
 
 func getDispenserInfo(appEnv *cfenv.App) handlers.DispenserCreds {
@@ -67,10 +77,14 @@ func getBasicAuthCreds(appEnv *cfenv.App) (user, pass string, err error) {
 	return
 }
 
-func getRouter(renderer *render.Render, collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds, appEnv *cfenv.App) (router *mux.Router) {
+func getRouter(renderer *render.Render, collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds, appEnv *cfenv.App) (router *mux.Router, err error) {
 	router = mux.NewRouter().StrictSlash(true)
+	var (
+		user string
+		pass string
+	)
 
-	if user, pass, err := getBasicAuthCreds(appEnv); err == nil {
+	if user, pass, err = getBasicAuthCreds(appEnv); err == nil {
 		v2Router := getV2Router(render.New(), collection, dispenserCreds, appEnv)
 		router.PathPrefix(handlers.ServiceBrokerAPIVersion).Handler(negroni.New(
 			negroni.HandlerFunc(auth.Basic(user, pass)),
