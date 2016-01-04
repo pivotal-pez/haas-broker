@@ -30,11 +30,12 @@ func Get() func(http.ResponseWriter, *http.Request) {
 					"description": "A small instance of hardware as a service",
 					"metadata":{
 						"bullets":[
-							 "48gb Mem", 
-							 "Supermicro", 
-							 "2.7ghz X5650 2 socket", 
-							 "24 core",
-							 "10 x 2TB disk sata"
+							"96gb memory (min)",
+							"2.7 GHz x (4 sockets / 12 cores per)",
+							"3TB NFS shared storage",
+							"40 TB total local disk",
+							"/24 network (on 10.65.x.x pivotal vpn)",
+							"ESXi installed"
 						]
 					}
 				}],
