@@ -43,9 +43,9 @@ var (
 	//ServiceInstanceDash -
 	ServiceInstanceDash = fmt.Sprintf("/show/{%s}", TaskGUIDVarName)
 	//HandlerPath - path to normal instance handlers
-	HandlerPath = fmt.Sprintf("/v2/service_instances/{%s}", InstanceIDVarName)
+	HandlerPath = fmt.Sprintf("/service_instances/{%s}", InstanceIDVarName)
 	//AsyncHandlerPath - path to async poller
-	AsyncHandlerPath     = "/v2/service_instances/{instance_id}/last_operation"
+	AsyncHandlerPath     = "/service_instances/{instance_id}/last_operation"
 	dashboardUrl         = "https://www.pezapp.io"
 	ErrInvalidInstanceID = errors.New("invalid instance id while attempting to get taskid")
 	//ErrNoRecordsInResult - empty result set

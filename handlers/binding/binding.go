@@ -9,7 +9,7 @@ import (
 
 const (
 	//HandlerPath - path to normal instance handlers
-	HandlerPath = "/v2/service_instances/{instance_id}/service_bindings/{binding_id}"
+	HandlerPath = "/service_instances/{instance_id}/service_bindings/{binding_id}"
 )
 
 //Put - handler function for put calls

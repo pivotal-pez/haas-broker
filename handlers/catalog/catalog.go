@@ -7,7 +7,7 @@ import (
 
 const (
 	//HandlerPath - path for catalog handler to register against
-	HandlerPath = "/v2/catalog"
+	HandlerPath = "/catalog"
 )
 
 //Get - function to handle a get request
