@@ -40,7 +40,7 @@ func (s *PDClient) GetTask(taskID string) (task TaskResponse, res *http.Response
 //DeleteLease -- allows a client user to make a DELETE lease call to dispenser
 func (s *PDClient) DeleteLease(leaseID, inventoryID, skuID string, metadata map[string]interface{}) (res *http.Response, err error) {
 	var body io.Reader
-	if body, err = s.getRequestBody(leaseID, inventoryID, skuID, 0, metadata); err == nil {
+	if body, err = s.getRequestBody(leaseID, inventoryID, skuID, "", 0, metadata); err == nil {
 		req, _ := s.createRequest("DELETE", fmt.Sprintf("%s/v1/lease", s.URL), body)
 
 		if res, err = s.client.Do(req); err != nil || res.StatusCode != http.StatusOK {
@@ -56,9 +56,9 @@ func (s *PDClient) DeleteLease(leaseID, inventoryID, skuID string, metadata map[
 }
 
 //PostLease -- allows a client user to post a lease to dispenser
-func (s *PDClient) PostLease(leaseID, inventoryID, skuID string, leaseDaysDuration int64) (leaseCreateResponse TaskResponse, res *http.Response, err error) {
+func (s *PDClient) PostLease(leaseID, inventoryID, skuID, userName string, leaseDaysDuration int64) (leaseCreateResponse TaskResponse, res *http.Response, err error) {
 	var body io.Reader
-	if body, err = s.getRequestBody(leaseID, inventoryID, skuID, leaseDaysDuration, make(map[string]interface{}, 1)); err == nil {
+	if body, err = s.getRequestBody(leaseID, inventoryID, skuID, userName, leaseDaysDuration, make(map[string]interface{}, 1)); err == nil {
 		req, _ := s.createRequest("POST", fmt.Sprintf("%s/v1/lease", s.URL), body)
 
 		if res, err = s.client.Do(req); err == nil && res.StatusCode == http.StatusCreated {
@@ -77,13 +77,14 @@ func (s *PDClient) PostLease(leaseID, inventoryID, skuID string, leaseDaysDurati
 	return
 }
 
-func (s *PDClient) getRequestBody(leaseID, inventoryID, skuID string, durationDays int64, meta map[string]interface{}) (body io.Reader, err error) {
+func (s *PDClient) getRequestBody(leaseID, inventoryID, skuID, userName string, durationDays int64, meta map[string]interface{}) (body io.Reader, err error) {
 	var (
 		now       = time.Now()
 		bodyBytes []byte
 	)
 	expire := now.Add(time.Duration(durationDays) * 24 * time.Hour)
 	leaseBody := LeaseRequestBody{
+		Username:             userName,
 		LeaseID:              leaseID,
 		InventoryID:          inventoryID,
 		Sku:                  skuID,

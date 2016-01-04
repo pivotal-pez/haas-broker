@@ -6,6 +6,7 @@ import (
 	"github.com/xchapter7x/lo"
 )
 
+//GetRequestIDFromTaskResponse - a function to get a request id from a taskresponse object
 func GetRequestIDFromTaskResponse(taskResponse TaskResponse) (requestID string, err error) {
 	var provisionHostInfoBytes []byte
 	firstRecordIndex := 0

@@ -104,7 +104,7 @@ func (s *InstanceCreator) PutHandler(w http.ResponseWriter, req *http.Request) {
 			client := pdclient.NewClient(s.Dispenser.ApiKey, s.Dispenser.URL, s.ClientDoer)
 			inventoryID := fmt.Sprintf("%s-%s", s.Model.OrganizationGUID, s.Model.SpaceGUID)
 
-			if leaseRes, _, err = client.PostLease(s.Model.ServiceID, inventoryID, s.getPlanName(), 14); err == nil {
+			if leaseRes, _, err = client.PostLease(s.Model.ServiceID, inventoryID, s.getPlanName(), s.Model.OrganizationGUID, 14); err == nil {
 				s.Model.TaskGUID = leaseRes.ID
 				lo.G.Debug("leaserequest response: ", leaseRes)
 				s.Model.RequestID, _ = pdclient.GetRequestIDFromTaskResponse(leaseRes)
