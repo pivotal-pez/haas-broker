@@ -70,7 +70,7 @@ func getBasicAuthCreds(appEnv *cfenv.App) (user, pass string, err error) {
 func getRouter(renderer *render.Render, collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds, appEnv *cfenv.App) (router *mux.Router) {
 	router = mux.NewRouter().StrictSlash(true)
 
-	if user, pass, err := getBasicAuthCreds(appEnv); err != nil {
+	if user, pass, err := getBasicAuthCreds(appEnv); err == nil {
 		v2Router := getV2Router(render.New(), collection, dispenserCreds, appEnv)
 		router.PathPrefix(handlers.ServiceBrokerAPIVersion).Handler(negroni.New(
 			negroni.HandlerFunc(auth.Basic(user, pass)),
