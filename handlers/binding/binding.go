@@ -5,12 +5,11 @@ import (
 	"net/http"
 
 	"github.com/pivotal-pez/cfmgo"
-	"github.com/pivotal-pez/haas-broker/handlers"
 )
 
-var (
+const (
 	//HandlerPath - path to normal instance handlers
-	HandlerPath = fmt.Sprintf("%s/service_instances/{instance_id}/service_bindings/{binding_id}", handlers.ServiceBrokerAPIVersion)
+	HandlerPath = "/service_instances/{instance_id}/service_bindings/{binding_id}"
 )
 
 //Put - handler function for put calls

@@ -5,6 +5,11 @@ import (
 	"net/http"
 )
 
+const (
+	//HandlerPath - path for catalog handler to register against
+	HandlerPath = "/catalog"
+)
+
 //Get - function to handle a get request
 func Get() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {

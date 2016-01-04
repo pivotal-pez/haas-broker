@@ -3,8 +3,6 @@ package instance
 import (
 	"errors"
 	"fmt"
-
-	"github.com/pivotal-pez/haas-broker/handlers"
 )
 
 const (
@@ -45,12 +43,10 @@ var (
 	//ServiceInstanceDash -
 	ServiceInstanceDash = fmt.Sprintf("/show/{%s}", TaskGUIDVarName)
 	//HandlerPath - path to normal instance handlers
-	HandlerPath = fmt.Sprintf("%s/service_instances/{%s}", handlers.ServiceBrokerAPIVersion, InstanceIDVarName)
+	HandlerPath = fmt.Sprintf("/service_instances/{%s}", InstanceIDVarName)
 	//AsyncHandlerPath - path to async poller
-	AsyncHandlerPath = fmt.Sprintf("%s/service_instances/{instance_id}/last_operation", handlers.ServiceBrokerAPIVersion)
-
-	dashboardUrl = "https://www.pezapp.io"
-	//ErrInvalidInstanceID - invalid instance id error
+	AsyncHandlerPath     = "/service_instances/{instance_id}/last_operation"
+	dashboardUrl         = "https://www.pezapp.io"
 	ErrInvalidInstanceID = errors.New("invalid instance id while attempting to get taskid")
 	//ErrNoRecordsInResult - empty result set
 	ErrNoRecordsInResult = errors.New("no records found in result set")
