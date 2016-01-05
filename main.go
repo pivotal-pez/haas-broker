@@ -139,7 +139,7 @@ func getSSOHandler() (uaaProvider negroni.Handler, err error) {
 			oauthOpts := &oauth2.Config{
 				ClientID:     clientID,
 				ClientSecret: clientSecret,
-				RedirectURL:  fmt.Sprintf("%s/sso/oauth2callback", url),
+				RedirectURL:  fmt.Sprintf("https://%s/sso/oauth2callback", url),
 				Scopes:       []string{"cloud_controller_service_permissions.read", "openid"},
 			}
 			uaaProvider = negroni.HandlerFunc(oauth2.NewOAuth2Provider(oauthOpts, authzEndpoint, tokenEndpoint))
