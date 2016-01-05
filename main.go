@@ -28,6 +28,8 @@ func main() {
 		collection := getCollection(appEnv)
 		dispenserCreds := getDispenserInfo(appEnv)
 		n := negroni.Classic()
+		store := cookiestore.New([]byte("secret123"))
+		n.Use(sessions.Sessions("my_session", store))
 		lo.G.Debug("created negroni")
 
 		if router, err := getRouter(render.New(), collection, dispenserCreds, appEnv); err == nil {
@@ -101,7 +103,6 @@ func getRouter(renderer *render.Render, collection cfmgo.Collection, dispenserCr
 
 	if ssoHandler, err := getSSOHandler(); err == nil {
 		router.PathPrefix(instance.SSOPathPrefix).Handler(negroni.New(
-			sessions.Sessions("my_session", cookiestore.New([]byte("secret123"))),
 			ssoHandler,
 			oauth2.LoginRequired(),
 			negroni.Wrap(ssoRouter),
@@ -127,7 +128,6 @@ func getSSOHandler() (uaaProvider negroni.Handler, err error) {
 	)
 
 	if app, err = cfenv.Current(); err == nil {
-		url := app.ApplicationURIs[0]
 		services := app.Services
 
 		if oauthService, err = services.WithName(os.Getenv("OAUTH_SERVICE_NAME")); err == nil {
@@ -139,7 +139,6 @@ func getSSOHandler() (uaaProvider negroni.Handler, err error) {
 			oauthOpts := &oauth2.Config{
 				ClientID:     clientID,
 				ClientSecret: clientSecret,
-				RedirectURL:  fmt.Sprintf("https://%s/sso/oauth2callback", url),
 				Scopes:       []string{"cloud_controller_service_permissions.read", "openid"},
 			}
 			uaaProvider = negroni.HandlerFunc(oauth2.NewOAuth2Provider(oauthOpts, authzEndpoint, tokenEndpoint))
