@@ -1,3 +1,4 @@
 cf cups mongo-service -p "database, host, password, port, scheme, uri, username"
 cf cups basic-auth-service -p "username, password"
 cf cups dispenser-service -p "apikey, url"
+cf cups oauth2-service -p "client_id, client_secret, authz_endpoint, token_endpoint"

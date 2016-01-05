@@ -7,6 +7,7 @@ applications:
     - basic-auth-service 
     - mongo-service
     - dispenser-service
+    - oauth2-service
   env:
     MONGO_SERVICE_NAME: mongo-service
     MONGO_SERVICE_URI_NAME: uri
@@ -19,3 +20,8 @@ applications:
     DISPENSER_KEY_NAME: apikey
     DISPENSER_URL_NAME: url
     LOG_LEVEL: debug
+    OAUTH_SERVICE_NAME: oauth2-service
+    OAUTH_CLIENT_FIELD: client_id
+    OAUTH_CLIENT_SECRET_FIELD: client_secret
+    OAUTH_AUTHZ_ENDPOINT_FIELD: authz_endpoint
+    OAUTH_TOKEN_ENDPOINT_FIELD: token_endpoint

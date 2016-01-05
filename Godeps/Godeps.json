@@ -16,12 +16,28 @@
 			"Rev": "c7477ad8e330bef55bf1ebe300cf8aa67c492d1b"
 		},
 		{
+			"ImportPath": "github.com/goincremental/negroni-oauth2",
+			"Rev": "3facb0b57c6cc54e4b1de1f8b82d368f6f2ca790"
+		},
+		{
+			"ImportPath": "github.com/goincremental/negroni-sessions",
+			"Rev": "b07e2d18b97e3f627edaa67876c21fa23eba6a08"
+		},
+		{
 			"ImportPath": "github.com/gorilla/context",
 			"Rev": "1c83b3eabd45b6d76072b66b746c20815fb2872d"
 		},
 		{
 			"ImportPath": "github.com/gorilla/mux",
 			"Rev": "ad4d7a5882b961e07e2626045eb995c022ac6664"
+		},
+		{
+			"ImportPath": "github.com/gorilla/securecookie",
+			"Rev": "e95799a481bbcc3d01c2ad5178524cb8bec9f370"
+		},
+		{
+			"ImportPath": "github.com/gorilla/sessions",
+			"Rev": "f7261893ca3ea922c30eabe742c036d2c1de6e0a"
 		},
 		{
 			"ImportPath": "github.com/mitchellh/mapstructure",
@@ -51,8 +67,8 @@
 		},
 		{
 			"ImportPath": "github.com/pivotal-pez/pezdispenser/pdclient",
-			"Comment": "v0.0.137-19-ge74f535",
-			"Rev": "e74f5350ea43a17c014b198c79b26343e338c4ff"
+			"Comment": "v0.0.137-20-g1908af3",
+			"Rev": "1908af39f7e1e28929b56113f39ce834fc313d98"
 		},
 		{
 			"ImportPath": "github.com/pmylund/go-cache",
@@ -75,6 +91,14 @@
 			"ImportPath": "golang.org/x/crypto/blowfish",
 			"Comment": "null-234",
 			"Rev": "'60a80aaa50ff0e8506f61b1fa35078a24941be50'"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "42ad50856d0131521b13983610e75c16da945ae3"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2",
+			"Rev": "ef4eca6b097fad7cec79afcc278d213a6de1c960"
 		},
 		{
 			"ImportPath": "gopkg.in/mgo.v2",

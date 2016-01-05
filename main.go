@@ -6,6 +6,9 @@ import (
 
 	"github.com/cloudfoundry-community/go-cfenv"
 	"github.com/codegangsta/negroni"
+	oauth2 "github.com/goincremental/negroni-oauth2"
+	sessions "github.com/goincremental/negroni-sessions"
+	"github.com/goincremental/negroni-sessions/cookiestore"
 	"github.com/gorilla/mux"
 	"github.com/nabeken/negroni-auth"
 	"github.com/pivotal-pez/cfmgo"
@@ -95,15 +98,57 @@ func getRouter(renderer *render.Render, collection cfmgo.Collection, dispenserCr
 		lo.G.Error("not enabling basic auth endpoints: ", err)
 	}
 	ssoRouter := getSSORouter(render.New(), collection, dispenserCreds)
-	router.PathPrefix(instance.SSOPathPrefix).Handler(negroni.New(
-		negroni.Wrap(ssoRouter),
-	))
+
+	if ssoHandler, err := getSSOHandler(); err == nil {
+		router.PathPrefix(instance.SSOPathPrefix).Handler(negroni.New(
+			sessions.Sessions("my_session", cookiestore.New([]byte("secret123"))),
+			ssoHandler,
+			oauth2.LoginRequired(),
+			negroni.Wrap(ssoRouter),
+		))
+
+	} else {
+		lo.G.Error("not enabling sso endpoints: ", err)
+	}
 	return
 }
 
 func getSSORouter(renderer *render.Render, collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds) (ssoRouter *mux.Router) {
 	ssoRouter = mux.NewRouter().PathPrefix(instance.SSOPathPrefix).Subrouter().StrictSlash(true)
 	ssoRouter.HandleFunc(instance.ServiceInstanceDash, instance.GetDashboard(dispenserCreds, collection, render.New())).Methods("GET")
+	ssoRouter.HandleFunc("/oauth2callback", instance.GetDashboard(dispenserCreds, collection, render.New())).Methods("GET")
+	return
+}
+
+func getSSOHandler() (uaaProvider negroni.Handler, err error) {
+	var (
+		app          *cfenv.App
+		oauthService *cfenv.Service
+	)
+
+	if app, err = cfenv.Current(); err == nil {
+		url := app.ApplicationURIs[0]
+		services := app.Services
+
+		if oauthService, err = services.WithName(os.Getenv("OAUTH_SERVICE_NAME")); err == nil {
+			clientID := oauthService.Credentials[os.Getenv("OAUTH_CLIENT_FIELD")].(string)
+			clientSecret := oauthService.Credentials[os.Getenv("OAUTH_CLIENT_SECRET_FIELD")].(string)
+			authzEndpoint := oauthService.Credentials[os.Getenv("OAUTH_AUTHZ_ENDPOINT_FIELD")].(string)
+			tokenEndpoint := oauthService.Credentials[os.Getenv("OAUTH_TOKEN_ENDPOINT_FIELD")].(string)
+
+			oauthOpts := &oauth2.Config{
+				ClientID:     clientID,
+				ClientSecret: clientSecret,
+				RedirectURL:  fmt.Sprintf("%s/sso/oauth2callback", url),
+				Scopes:       []string{"cloud_controller_service_permissions.read", "openid"},
+			}
+			uaaProvider = negroni.HandlerFunc(oauth2.NewOAuth2Provider(oauthOpts, authzEndpoint, tokenEndpoint))
+		} else {
+			lo.G.Error("could not find oauthservice: ", err)
+		}
+	} else {
+		lo.G.Error("could not grab valid vcap", err)
+	}
 	return
 }
 
