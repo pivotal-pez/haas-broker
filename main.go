@@ -94,7 +94,16 @@ func getRouter(renderer *render.Render, collection cfmgo.Collection, dispenserCr
 	} else {
 		lo.G.Error("not enabling basic auth endpoints: ", err)
 	}
-	router.HandleFunc(instance.ServiceInstanceDash, instance.GetDashboard(dispenserCreds, collection, render.New())).Methods("GET")
+	ssoRouter := getSSORouter(render.New(), collection, dispenserCreds)
+	router.PathPrefix(instance.SSOPathPrefix).Handler(negroni.New(
+		negroni.Wrap(ssoRouter),
+	))
+	return
+}
+
+func getSSORouter(renderer *render.Render, collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds) (ssoRouter *mux.Router) {
+	ssoRouter = mux.NewRouter().PathPrefix(instance.SSOPathPrefix).Subrouter().StrictSlash(true)
+	ssoRouter.HandleFunc(instance.ServiceInstanceDash, instance.GetDashboard(dispenserCreds, collection, render.New())).Methods("GET")
 	return
 }
 

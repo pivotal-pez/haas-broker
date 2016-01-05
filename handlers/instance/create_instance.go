@@ -109,7 +109,7 @@ func (s *InstanceCreator) PutHandler(w http.ResponseWriter, req *http.Request) {
 				lo.G.Debug("leaserequest response: ", leaseRes)
 				s.Model.RequestID, _ = pdclient.GetRequestIDFromTaskResponse(leaseRes)
 				statusCode = http.StatusAccepted
-				responseBody = fmt.Sprintf(`{"dashboard_url": "https://%s/show/%s"}`, dashboardUrl, s.Model.TaskGUID)
+				responseBody = fmt.Sprintf(`{"dashboard_url": "https://%s%s/dashboard/%s"}`, dashboardUrl, SSOPathPrefix, s.Model.TaskGUID)
 				s.Model.Save(s.Collection)
 			}
 		}

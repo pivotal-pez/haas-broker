@@ -40,8 +40,10 @@ const (
 )
 
 var (
+	//SSOPathPrefix -
+	SSOPathPrefix = "/sso"
 	//ServiceInstanceDash -
-	ServiceInstanceDash = fmt.Sprintf("/show/{%s}", TaskGUIDVarName)
+	ServiceInstanceDash = fmt.Sprintf("/dashboard/{%s}", TaskGUIDVarName)
 	//HandlerPath - path to normal instance handlers
 	HandlerPath = fmt.Sprintf("/service_instances/{%s}", InstanceIDVarName)
 	//AsyncHandlerPath - path to async poller
