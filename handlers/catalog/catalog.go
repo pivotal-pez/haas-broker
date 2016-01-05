@@ -3,6 +3,9 @@ package catalog
 import (
 	"fmt"
 	"net/http"
+	"os"
+
+	"github.com/cloudfoundry-community/go-cfenv"
 )
 
 const (
@@ -10,10 +13,31 @@ const (
 	HandlerPath = "/catalog"
 )
 
+func getDashboardInfo() (clientID string, clientSecret string, redirectURL string) {
+
+	var (
+		app          *cfenv.App
+		oauthService *cfenv.Service
+		err          error
+	)
+
+	if app, err = cfenv.Current(); err == nil {
+		redirectURL = app.ApplicationURIs[0]
+		services := app.Services
+
+		if oauthService, err = services.WithName(os.Getenv("OAUTH_SERVICE_NAME")); err == nil {
+			clientID = oauthService.Credentials[os.Getenv("OAUTH_CLIENT_FIELD")].(string)
+			clientSecret = oauthService.Credentials[os.Getenv("OAUTH_CLIENT_SECRET_FIELD")].(string)
+		}
+	}
+	return
+}
+
 //Get - function to handle a get request
 func Get() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {
-		response := `{
+		clientID, clientSecret, redirectURL := getDashboardInfo()
+		response := fmt.Sprintf(`{
 			"services": [{
 				"id": "5a9b9f22-a08d-11e5-8062-7831c1d4f660",
 				"name": "pez-haas",
@@ -40,12 +64,12 @@ func Get() func(http.ResponseWriter, *http.Request) {
 					}
 				}],
 				"dashboard_client": {
-					"id": "pez-haas-client",
-          "secret": "pez-haas-secret",
-					"redirect_uri": "https://www.pezapp.io"
+					"id": %s,
+					"secret": %s,
+					"redirect_uri": %s
 				}
 			}]
-		}`
+		}`, clientID, clientSecret, redirectURL)
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, response)
 	}
