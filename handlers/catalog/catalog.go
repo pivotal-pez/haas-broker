@@ -66,7 +66,7 @@ func Get() func(http.ResponseWriter, *http.Request) {
 				"dashboard_client": {
 					"id": "%s",
 					"secret": "%s",
-					"redirect_uri": "https://%s/sso/oauth2callback"
+					"redirect_uri": "https://%s/oauth2callback"
 				}
 			}]
 		}`, clientID, clientSecret, redirectURL)
