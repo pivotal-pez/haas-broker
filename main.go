@@ -28,9 +28,14 @@ func main() {
 		collection := getCollection(appEnv)
 		dispenserCreds := getDispenserInfo(appEnv)
 		n := negroni.Classic()
-		store := cookiestore.New([]byte("secret123"))
-		n.Use(sessions.Sessions("my_session", store))
 		lo.G.Debug("created negroni")
+
+		if oauthHandler, err := getOAuthHandler(); err == nil {
+			n.Use(sessions.Sessions("haas_session", cookiestore.New([]byte("shhhhhhhdonttell"))))
+			n.Use(oauthHandler)
+		} else {
+			lo.G.Panic("not able to enable sso endpoints: ", err)
+		}
 
 		if router, err := getRouter(render.New(), collection, dispenserCreds, appEnv); err == nil {
 			n.UseHandler(router)
@@ -101,16 +106,10 @@ func getRouter(renderer *render.Render, collection cfmgo.Collection, dispenserCr
 	}
 	ssoRouter := getSSORouter(render.New(), collection, dispenserCreds)
 
-	if ssoHandler, err := getSSOHandler(); err == nil {
-		router.PathPrefix(instance.SSOPathPrefix).Handler(negroni.New(
-			ssoHandler,
-			oauth2.LoginRequired(),
-			negroni.Wrap(ssoRouter),
-		))
-
-	} else {
-		lo.G.Error("not enabling sso endpoints: ", err)
-	}
+	router.PathPrefix(instance.SSOPathPrefix).Handler(negroni.New(
+		oauth2.LoginRequired(),
+		negroni.Wrap(ssoRouter),
+	))
 	return
 }
 
@@ -121,7 +120,7 @@ func getSSORouter(renderer *render.Render, collection cfmgo.Collection, dispense
 	return
 }
 
-func getSSOHandler() (uaaProvider negroni.Handler, err error) {
+func getOAuthHandler() (uaaProvider negroni.Handler, err error) {
 	var (
 		app          *cfenv.App
 		oauthService *cfenv.Service
