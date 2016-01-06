@@ -69,8 +69,8 @@ func getRedisSessionStore(appEnv *cfenv.App) (rstore sessions.Store, err error) 
 	if redisService, err = appEnv.Services.WithName(os.Getenv("REDIS_SERVICE_NAME")); err == nil {
 		host := redisService.Credentials[os.Getenv("REDIS_HOST_FIELD")].(string)
 		pass := redisService.Credentials[os.Getenv("REDIS_PASSWORD_FIELD")].(string)
-		port := redisService.Credentials[os.Getenv("REDIS_PORT_FIELD")].(float64)
-		address := fmt.Sprintf("%s:%f", host, port)
+		port := int(redisService.Credentials[os.Getenv("REDIS_PORT_FIELD")].(float64))
+		address := fmt.Sprintf("%s:%d", host, port)
 
 		if rstore, err = redisstore.New(10, "tcp", address, pass, []byte("shhhhhhhdonttell")); err != nil {
 			lo.G.Error("could not create a new redis store connection: ", err)
