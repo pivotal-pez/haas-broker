@@ -10,7 +10,7 @@ import (
 	"github.com/codegangsta/negroni"
 	oauth2 "github.com/goincremental/negroni-oauth2"
 	sessions "github.com/goincremental/negroni-sessions"
-	"github.com/goincremental/negroni-sessions/cookiestore"
+	"github.com/goincremental/negroni-sessions/redisstore"
 	"github.com/gorilla/mux"
 	"github.com/nabeken/negroni-auth"
 	"github.com/pivotal-pez/cfmgo"
@@ -36,7 +36,13 @@ func main() {
 		lo.G.Debug("created negroni")
 
 		if oauthHandler, err := getOAuthHandler(); err == nil {
-			n.Use(sessions.Sessions("haas_session", cookiestore.New([]byte("shhhhhhhdonttell"))))
+
+			if redisSession, err := getRedisSessionStore(appEnv); err == nil {
+				n.Use(sessions.Sessions("haas_session", redisSession))
+
+			} else {
+				lo.G.Panic("could not create redis session: ", err)
+			}
 			n.Use(oauthHandler)
 		} else {
 			lo.G.Panic("not able to enable sso endpoints: ", err)
@@ -55,6 +61,25 @@ func main() {
 	} else {
 		lo.G.Panic("error, failure to parse cfenv: ", err.Error())
 	}
+}
+
+func getRedisSessionStore(appEnv *cfenv.App) (rstore sessions.Store, err error) {
+	var redisService *cfenv.Service
+
+	if redisService, err = appEnv.Services.WithName(os.Getenv("REDIS_SERVICE_NAME")); err == nil {
+		host := redisService.Credentials[os.Getenv("REDIS_HOST_FIELD")].(string)
+		pass := redisService.Credentials[os.Getenv("REDIS_PASSWORD_FIELD")].(string)
+		port := redisService.Credentials[os.Getenv("REDIS_PORT_FIELD")].(string)
+		address := fmt.Sprintf("%s:%s", host, port)
+
+		if rstore, err = redisstore.New(10, "tcp", address, pass, []byte("shhhhhhhdonttell")); err != nil {
+			lo.G.Error("could not create a new redis store connection: ", err)
+		}
+
+	} else {
+		lo.G.Error("couldnt find a redis service", err)
+	}
+	return
 }
 
 func getCollection(appEnv *cfenv.App) cfmgo.Collection {

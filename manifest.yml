@@ -8,6 +8,7 @@ applications:
     - mongo-service
     - dispenser-service
     - oauth2-service
+    - haas-broker-redis
   env:
     MONGO_SERVICE_NAME: mongo-service
     MONGO_SERVICE_URI_NAME: uri
@@ -25,3 +26,7 @@ applications:
     OAUTH_CLIENT_SECRET_FIELD: client_secret
     OAUTH_AUTHZ_ENDPOINT_FIELD: authz_endpoint
     OAUTH_TOKEN_ENDPOINT_FIELD: token_endpoint
+    REDIS_SERVICE_NAME: haas-broker-redis
+    REDIS_HOST_FIELD: host
+    REDIS_PASSWORD_FIELD: password
+    REDIS_PORT_FIELD: port
