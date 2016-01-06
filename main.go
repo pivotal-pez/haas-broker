@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/cloudfoundry-community/go-cfenv"
@@ -18,6 +20,8 @@ import (
 	"github.com/pivotal-pez/haas-broker/handlers/instance"
 	"github.com/unrolled/render"
 	"github.com/xchapter7x/lo"
+	"golang.org/x/net/context"
+	baseOauth2 "golang.org/x/oauth2"
 )
 
 func main() {
@@ -28,6 +32,7 @@ func main() {
 		collection := getCollection(appEnv)
 		dispenserCreds := getDispenserInfo(appEnv)
 		n := negroni.Classic()
+		setOauthContextInsecure(true)
 		lo.G.Debug("created negroni")
 
 		if oauthHandler, err := getOAuthHandler(); err == nil {
@@ -148,6 +153,14 @@ func getOAuthHandler() (uaaProvider negroni.Handler, err error) {
 		lo.G.Error("could not grab valid vcap", err)
 	}
 	return
+}
+
+func setOauthContextInsecure(ignore bool) {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignore},
+	}
+	client := &http.Client{Transport: tr}
+	baseOauth2.NoContext = context.WithValue(context.Background(), baseOauth2.HTTPClient, client)
 }
 
 func getV2Router(renderer *render.Render, collection cfmgo.Collection, dispenserCreds handlers.DispenserCreds, appEnv *cfenv.App) (v2Router *mux.Router) {

@@ -94,7 +94,7 @@
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "42ad50856d0131521b13983610e75c16da945ae3"
+			"Rev": "961116aeebe66bfb58bb4d51818c70d256acbbb8"
 		},
 		{
 			"ImportPath": "golang.org/x/oauth2",
